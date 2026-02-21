@@ -64,15 +64,13 @@ describe('App game loop', () => {
       expect(screen.queryByText('The Wumpus is thinking...')).not.toBeInTheDocument();
     });
 
-    expect(screen.getByText('Turn: 0')).toBeInTheDocument();
+    expect(screen.getByText('Turn #0')).toBeInTheDocument();
     expect(
       screen.getByText('The hunt begins. Find the gold. Survive.'),
     ).toBeInTheDocument();
   });
 
-  it('auto-dismisses sensory message after 4 seconds', async () => {
-    vi.useFakeTimers();
-
+  it('renders sensory message in the dungeon log', async () => {
     mockStartGame.mockResolvedValueOnce({
       game_id: 'game-1',
       status: 'Ongoing',
@@ -92,21 +90,9 @@ describe('App game loop', () => {
       await Promise.resolve();
     });
 
-    const message = screen.getByText('You feel a cold draft. A pit may be nearby.');
-    expect(message).toBeInTheDocument();
-
-    act(() => {
-      vi.advanceTimersByTime(3500);
-    });
-    expect(message).toHaveClass('game-ui__message--fading');
-
-    act(() => {
-      vi.advanceTimersByTime(500);
-    });
-
     expect(
-      screen.queryByText('You feel a cold draft. A pit may be nearby.'),
-    ).not.toBeInTheDocument();
+      screen.getByText('You feel a cold draft. A pit may be nearby.'),
+    ).toBeInTheDocument();
   });
 
   it('keeps modal open on play-again failure and allows retry', async () => {
@@ -163,7 +149,7 @@ describe('App game loop', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
-    expect(screen.getByText('Turn: 0')).toBeInTheDocument();
+    expect(screen.getByText('Turn #0')).toBeInTheDocument();
     expect(mockStartGame).toHaveBeenCalledTimes(3);
   });
 });

@@ -4,16 +4,22 @@ import '../styles/Modal.css';
 
 const TERMINAL_MESSAGES = {
   PlayerWon: {
+    icon: '🏆',
     title: 'You Found the Gold!',
     body: 'You escaped the Wumpus and claimed the treasure.',
+    statusClass: 'modal-box__title--win',
   },
   PlayerLost_Wumpus: {
+    icon: '💀',
     title: 'Devoured.',
     body: 'The Wumpus found you. You never stood a chance.',
+    statusClass: 'modal-box__title--wumpus',
   },
   PlayerLost_Pit: {
+    icon: '🕳',
     title: 'You Fell.',
     body: 'The ground gave way. There was no bottom.',
+    statusClass: 'modal-box__title--pit',
   },
 };
 
@@ -32,7 +38,10 @@ export default function GameOverModal({
   return (
     <div className='modal-overlay' role='dialog' aria-modal='true'>
       <div className='modal-box' data-status={status}>
-        <h2>{message.title}</h2>
+        <p className='modal-icon' aria-hidden='true'>
+          {message.icon}
+        </p>
+        <h2 className={message.statusClass}>{message.title}</h2>
         <p>{message.body}</p>
         {error ? (
           <p role='alert' className='modal-error'>

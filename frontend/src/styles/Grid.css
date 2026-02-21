@@ -1,11 +1,18 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(var(--grid-size), 1fr);
-  width: min(80vw, 600px);
-  aspect-ratio: 1 / 1;
-  gap: 2px;
-  background-color: #0a0a0c;
-  border: 2px solid #3a3a45;
-  border-radius: 4px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  grid-template-columns: repeat(var(--grid-size), min(5vw, 56px));
+  grid-template-rows: repeat(var(--grid-size), min(5vw, 56px));
+  width: fit-content;
+  gap: 0;
+  border: 2px solid #2a2840;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  background: #0b0b10;
+  overflow: hidden;
+}
+
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: repeat(var(--grid-size), min(8vw, 56px));
+    grid-template-rows: repeat(var(--grid-size), min(8vw, 56px));
+  }
 }

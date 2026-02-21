@@ -10,7 +10,6 @@ describe('GameUI', () => {
         isAiming={true}
         isLoading={false}
         message='You feel a cold draft.'
-        isMessageFading={false}
         status='Ongoing'
         turn={4}
         onStartGame={() => {}}
@@ -18,8 +17,8 @@ describe('GameUI', () => {
       />,
     );
 
-    expect(screen.getByText('Turn: 4')).toBeInTheDocument();
-    expect(screen.getByText('Arrow: 🏹')).toBeInTheDocument();
+    expect(screen.getByText('Turn #4')).toBeInTheDocument();
+    expect(screen.getByText('🏹 Ready')).toBeInTheDocument();
     expect(screen.getByText('🎯 AIM MODE — SHOOT WITH WASD')).toBeInTheDocument();
     expect(screen.getByText('You feel a cold draft.')).toBeInTheDocument();
   });
@@ -31,7 +30,6 @@ describe('GameUI', () => {
         isAiming={false}
         isLoading={false}
         message=''
-        isMessageFading={false}
         status='Ongoing'
         turn={0}
         onStartGame={() => {}}
@@ -52,7 +50,6 @@ describe('GameUI', () => {
         isAiming={false}
         isLoading={false}
         message=''
-        isMessageFading={false}
         status='Ongoing'
         turn={0}
         onStartGame={onStartGame}

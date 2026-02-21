@@ -1,65 +1,79 @@
 .tile {
-  background-color: #1a1a1e;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
+
 .tile--fog {
-  background-color: #0a0a0d;
+  background-color: #0b0b10;
   box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.9);
 }
+
 .tile--explored {
-  background-color: #252530;
-  background-image: radial-gradient(
-    circle at 30% 30%,
-    rgba(200, 160, 96, 0.1) 0,
-    rgba(200, 160, 96, 0) 45%
-  );
+  background-color: #1e1c28;
+  border: 1px solid #2a2840;
 }
+
 .tile--player {
+  background-color: #2a2416;
   box-shadow:
-    inset 0 0 20px rgba(226, 160, 74, 0.6),
-    0 0 15px rgba(226, 160, 74, 0.4);
-  background-color: #2e2818;
+    inset 0 0 20px rgba(226, 160, 74, 0.5),
+    0 0 12px rgba(226, 160, 74, 0.3);
 }
+
+.tile--flash {
+  animation: tileReveal 0.6s ease-out;
+}
+
 .tile--sense-breeze::after,
 .tile--sense-stench::after,
 .tile--sense-shine::after {
   content: '';
   position: absolute;
-  width: 0.85rem;
-  height: 0.85rem;
-  opacity: 0.95;
+  width: 16px;
+  height: 16px;
+  opacity: 0.88;
   z-index: 4;
+  border-radius: 4px;
+  background: rgba(20, 18, 31, 0.7);
 }
+
 .tile--sense-breeze::after {
   left: 2px;
   bottom: 2px;
 }
+
 .tile--sense-stench::after {
   right: 2px;
   bottom: 2px;
 }
+
 .tile--sense-shine::after {
   right: 2px;
   top: 2px;
 }
+
 .tile--pit {
   background-color: #0a0a0c;
   box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.9);
 }
+
 .tile--gold {
   background-color: #3a2f0c;
   box-shadow: inset 0 0 14px rgba(255, 215, 0, 0.35);
 }
+
 .tile [data-entity='player'] {
-  width: 1.15rem;
-  height: 1.15rem;
+  width: 1.2rem;
+  height: 1.2rem;
   z-index: 3;
 }
+
 .tile [data-entity='pit'],
 .tile [data-entity='gold'],
 .tile [data-entity='wumpus'] {
@@ -68,49 +82,59 @@
   height: 1.2rem;
   z-index: 2;
 }
+
 .tile [data-entity='pit'] {
   bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
 }
+
 .tile [data-entity='gold'] {
   top: 2px;
   left: 2px;
 }
+
 .tile [data-entity='wumpus'] {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 .tile [data-sense='breeze'],
 .tile [data-sense='stench'],
 .tile [data-sense='shine'] {
   position: absolute;
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 16px;
+  height: 16px;
   z-index: 5;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
-  animation: pulse 1.8s ease-in-out infinite;
 }
+
 .tile [data-sense='breeze'] {
   bottom: 2px;
   left: 2px;
 }
+
 .tile [data-sense='stench'] {
   bottom: 2px;
   right: 2px;
 }
+
 .tile [data-sense='shine'] {
   top: 2px;
   right: 2px;
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
+@keyframes tileReveal {
+  from {
+    background-image: radial-gradient(
+      circle,
+      rgba(226, 160, 74, 0.2) 0%,
+      transparent 70%
+    );
   }
-  50% {
-    transform: scale(1.1);
+
+  to {
+    background-image: radial-gradient(circle, transparent 0%, transparent 100%);
   }
 }

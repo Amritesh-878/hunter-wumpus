@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import { startGame as startGameRequest } from './api/gameService';
 import GameOverModal from './components/GameOverModal';
 import GameUI from './components/GameUI';
@@ -12,33 +10,6 @@ import './styles/App.css';
 function GameShell() {
   const { state, dispatch } = useGame();
   const { isAiming, toggleAim } = useControls();
-  const [displayedMessage, setDisplayedMessage] = useState('');
-  const [isMessageFading, setIsMessageFading] = useState(false);
-
-  useEffect(() => {
-    if (!state.message) {
-      setDisplayedMessage('');
-      setIsMessageFading(false);
-      return;
-    }
-
-    setDisplayedMessage(state.message);
-    setIsMessageFading(false);
-
-    const fadeTimer = setTimeout(() => {
-      setIsMessageFading(true);
-    }, 3500);
-
-    const clearTimer = setTimeout(() => {
-      setDisplayedMessage('');
-      setIsMessageFading(false);
-    }, 4000);
-
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(clearTimer);
-    };
-  }, [state.message]);
 
   const runStartGame = async (resetBeforeRequest) => {
     if (resetBeforeRequest) dispatch({ type: 'RESET_STATE' });
@@ -60,27 +31,32 @@ function GameShell() {
 
   return (
     <main className='app'>
-      <h1>Hunter Wumpus</h1>
-      <Grid
-        gridSize={state.gridSize}
-        playerPos={state.playerPos}
-        exploredTiles={state.exploredTiles}
-        senses={state.senses}
-        status={state.status}
-      />
-      <aside className='app__right-panel'>
-        <GameUI
-          arrowsRemaining={state.arrowsRemaining}
-          isAiming={isAiming}
-          isLoading={state.isLoading}
-          message={displayedMessage}
-          isMessageFading={isMessageFading}
+      <header className='app__titlebar'>
+        <h1>HUNT THE WUMPUS</h1>
+        <div className='app__title-divider' aria-hidden='true' />
+      </header>
+
+      <section className='app__content'>
+        <Grid
+          gridSize={state.gridSize}
+          playerPos={state.playerPos}
+          exploredTiles={state.exploredTiles}
+          senses={state.senses}
           status={state.status}
-          turn={state.turn}
-          onStartGame={() => runStartGame(true)}
-          onToggleAim={toggleAim}
         />
-      </aside>
+        <aside className='app__right-panel'>
+          <GameUI
+            arrowsRemaining={state.arrowsRemaining}
+            isAiming={isAiming}
+            isLoading={state.isLoading}
+            message={state.message}
+            status={state.status}
+            turn={state.turn}
+            onStartGame={() => runStartGame(true)}
+            onToggleAim={toggleAim}
+          />
+        </aside>
+      </section>
       {state.error ? (
         <p role='alert' className='app__error'>
           Error: {state.error}
@@ -100,5 +76,9 @@ function GameShell() {
 }
 
 export default function App() {
-  return <GameProvider><GameShell /></GameProvider>;
+  return (
+    <GameProvider>
+      <GameShell />
+    </GameProvider>
+  );
 }
