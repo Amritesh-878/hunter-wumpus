@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import random
 from pathlib import Path
 from typing import Any
 
@@ -11,7 +12,17 @@ from stable_baselines3 import PPO
 from engine.entities import Direction, Position
 from engine.senses import MAX_SCENT
 
-DEFAULT_MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "hunter_wumpus_model.zip"
+
+class RandomWumpusAgent:
+    """Fallback agent used when the trained model file is not available."""
+
+    def build_observation(self, game_state: dict[str, Any]) -> npt.NDArray[np.float32]:
+        return np.zeros(9, dtype=np.float32)
+
+    def get_wumpus_action(self, obs: npt.NDArray[np.float32]) -> Direction:
+        return random.choice(list(Direction))
+
+DEFAULT_MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "hunter_wumpus_model"
 
 
 class WumpusAgent:

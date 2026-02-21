@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException
 from api.schemas import ActionType, GameStateResponse, MoveRequest, SensesPayload, StartRequest
 from engine.entities import Direction, Position
 from engine.game_state import GameEngine
-from rl.agent import WumpusAgent
+from rl.agent import RandomWumpusAgent, WumpusAgent
 
 
 class WumpusPolicy(Protocol):
@@ -71,7 +71,10 @@ def _sense_message(senses: dict[str, bool]) -> str:
 def _get_agent() -> WumpusPolicy:
     global _agent
     if _agent is None:
-        _agent = WumpusAgent()
+        try:
+            _agent = WumpusAgent()
+        except FileNotFoundError:
+            _agent = RandomWumpusAgent()
     return _agent
 
 
