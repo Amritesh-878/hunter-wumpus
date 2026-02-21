@@ -15,44 +15,40 @@ function Tile({
   y,
   isExplored,
   isPlayerHere,
-  senses,
-  status,
+  showBreeze,
+  showStench,
+  showShine,
   revealPit,
   revealGold,
   revealWumpus,
 }) {
-  const showPit = revealPit || (isPlayerHere && status === 'PlayerLost_Pit');
-  const showGold = revealGold || (isPlayerHere && status === 'PlayerWon');
-  const showWumpus =
-    revealWumpus || (isPlayerHere && status === 'PlayerLost_Wumpus');
-
   const classNames = ['tile', isExplored ? 'tile--explored' : 'tile--fog'];
 
   if (isPlayerHere) {
     classNames.push('tile--player');
   }
 
-  if (isPlayerHere && senses.breeze) {
+  if (showBreeze) {
     classNames.push('tile--sense-breeze');
   }
 
-  if (isPlayerHere && senses.stench) {
+  if (showStench) {
     classNames.push('tile--sense-stench');
   }
 
-  if (isPlayerHere && senses.shine) {
+  if (showShine) {
     classNames.push('tile--sense-shine');
   }
 
-  if (showPit) {
+  if (revealPit) {
     classNames.push('tile--pit');
   }
 
-  if (showGold) {
+  if (revealGold) {
     classNames.push('tile--gold');
   }
 
-  if (!isExplored && !showPit && !showGold && !showWumpus) {
+  if (!isExplored && !revealPit && !revealGold && !revealWumpus) {
     return (
       <div
         className={classNames.join(' ')}
@@ -68,18 +64,18 @@ function Tile({
       {isPlayerHere ? (
         <img src={playerSprite} alt='Player' data-entity='player' />
       ) : null}
-      {showPit ? <img src={pitSprite} alt='Pit' data-entity='pit' /> : null}
-      {showGold ? <img src={goldSprite} alt='Gold' data-entity='gold' /> : null}
-      {showWumpus ? (
+      {revealPit ? <img src={pitSprite} alt='Pit' data-entity='pit' /> : null}
+      {revealGold ? <img src={goldSprite} alt='Gold' data-entity='gold' /> : null}
+      {revealWumpus ? (
         <img src={wumpusSprite} alt='Wumpus' data-entity='wumpus' />
       ) : null}
-      {isPlayerHere && senses.breeze ? (
+      {showBreeze ? (
         <img src={breezeIcon} alt='Breeze' data-sense='breeze' />
       ) : null}
-      {isPlayerHere && senses.stench ? (
+      {showStench ? (
         <img src={stenchIcon} alt='Stench' data-sense='stench' />
       ) : null}
-      {isPlayerHere && senses.shine ? (
+      {showShine ? (
         <img src={shineIcon} alt='Shine' data-sense='shine' />
       ) : null}
     </div>
@@ -91,31 +87,12 @@ Tile.propTypes = {
   y: PropTypes.number.isRequired,
   isExplored: PropTypes.bool.isRequired,
   isPlayerHere: PropTypes.bool.isRequired,
-  senses: PropTypes.shape({
-    breeze: PropTypes.bool.isRequired,
-    stench: PropTypes.bool.isRequired,
-    shine: PropTypes.bool.isRequired,
-  }).isRequired,
-  status: PropTypes.string.isRequired,
+  showBreeze: PropTypes.bool.isRequired,
+  showStench: PropTypes.bool.isRequired,
+  showShine: PropTypes.bool.isRequired,
   revealPit: PropTypes.bool.isRequired,
   revealGold: PropTypes.bool.isRequired,
   revealWumpus: PropTypes.bool.isRequired,
 };
 
-function areTilePropsEqual(previousProps, nextProps) {
-  return (
-    previousProps.x === nextProps.x &&
-    previousProps.y === nextProps.y &&
-    previousProps.isExplored === nextProps.isExplored &&
-    previousProps.isPlayerHere === nextProps.isPlayerHere &&
-    previousProps.status === nextProps.status &&
-    previousProps.revealPit === nextProps.revealPit &&
-    previousProps.revealGold === nextProps.revealGold &&
-    previousProps.revealWumpus === nextProps.revealWumpus &&
-    previousProps.senses.breeze === nextProps.senses.breeze &&
-    previousProps.senses.stench === nextProps.senses.stench &&
-    previousProps.senses.shine === nextProps.senses.shine
-  );
-}
-
-export default memo(Tile, areTilePropsEqual);
+export default memo(Tile);

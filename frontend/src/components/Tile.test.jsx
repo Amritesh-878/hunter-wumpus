@@ -3,9 +3,6 @@ import { render, screen } from '@testing-library/react';
 import Tile from './Tile';
 
 describe('Tile', () => {
-  const noSenses = { breeze: false, stench: false, shine: false };
-  const allSenses = { breeze: true, stench: true, shine: true };
-
   const renderTile = (overrides = {}) =>
     render(
       <Tile
@@ -13,8 +10,9 @@ describe('Tile', () => {
         y={2}
         isExplored={true}
         isPlayerHere={true}
-        senses={noSenses}
-        status='Ongoing'
+        showBreeze={false}
+        showStench={false}
+        showShine={false}
         revealPit={false}
         revealGold={false}
         revealWumpus={false}
@@ -23,19 +21,10 @@ describe('Tile', () => {
     );
 
   it('renders unexplored tiles as fog with no child content', () => {
-    const { container } = render(
-      <Tile
-        x={1}
-        y={2}
-        isExplored={false}
-        isPlayerHere={false}
-        senses={allSenses}
-        status='Ongoing'
-        revealPit={false}
-        revealGold={false}
-        revealWumpus={false}
-      />,
-    );
+    const { container } = renderTile({
+      isExplored: false,
+      isPlayerHere: false,
+    });
 
     const tile = container.querySelector('.tile');
 
@@ -44,10 +33,8 @@ describe('Tile', () => {
     expect(tile).toBeEmptyDOMElement();
   });
 
-  it('renders breeze indicator on player tile', () => {
-    const { container } = renderTile({
-      senses: { ...noSenses, breeze: true },
-    });
+  it('renders breeze indicator when showBreeze is true', () => {
+    const { container } = renderTile({ showBreeze: true });
 
     const tile = container.querySelector('.tile');
 
@@ -55,10 +42,8 @@ describe('Tile', () => {
     expect(screen.getByAltText('Breeze')).toBeInTheDocument();
   });
 
-  it('renders stench indicator on player tile', () => {
-    const { container } = renderTile({
-      senses: { ...noSenses, stench: true },
-    });
+  it('renders stench indicator when showStench is true', () => {
+    const { container } = renderTile({ showStench: true });
 
     const tile = container.querySelector('.tile');
 
@@ -66,10 +51,8 @@ describe('Tile', () => {
     expect(screen.getByAltText('Stench')).toBeInTheDocument();
   });
 
-  it('renders shine indicator on player tile', () => {
-    const { container } = renderTile({
-      senses: { ...noSenses, shine: true },
-    });
+  it('renders shine indicator when showShine is true', () => {
+    const { container } = renderTile({ showShine: true });
 
     const tile = container.querySelector('.tile');
 
@@ -77,10 +60,12 @@ describe('Tile', () => {
     expect(screen.getByAltText('Shine')).toBeInTheDocument();
   });
 
-  it('does not render senses on non-player tile', () => {
+  it('does not render senses when show flags are false', () => {
     const { container } = renderTile({
       isPlayerHere: false,
-      senses: allSenses,
+      showBreeze: false,
+      showStench: false,
+      showShine: false,
     });
 
     const tile = container.querySelector('.tile');
@@ -94,7 +79,11 @@ describe('Tile', () => {
   });
 
   it('renders all senses with distinct classes and icons', () => {
-    const { container } = renderTile({ senses: allSenses });
+    const { container } = renderTile({
+      showBreeze: true,
+      showStench: true,
+      showShine: true,
+    });
     const tile = container.querySelector('.tile');
 
     expect(tile).toHaveClass('tile--sense-breeze');
@@ -105,24 +94,19 @@ describe('Tile', () => {
     expect(screen.getByAltText('Shine')).toBeInTheDocument();
   });
 
-  it('reveals pit and gold sprites on terminal statuses', () => {
-    const { rerender } = renderTile({ status: 'PlayerLost_Pit' });
+  it('reveals pit sprite when revealPit is true', () => {
+    renderTile({ revealPit: true, isExplored: true });
     expect(screen.getByAltText('Pit')).toBeInTheDocument();
+  });
 
-    rerender(
-      <Tile
-        x={1}
-        y={2}
-        isExplored={true}
-        isPlayerHere={true}
-        senses={noSenses}
-        status='PlayerWon'
-        revealPit={false}
-        revealGold={false}
-        revealWumpus={false}
-      />,
-    );
-
+  it('reveals gold sprite when revealGold is true', () => {
+    renderTile({ revealGold: true, isExplored: true });
     expect(screen.getByAltText('Gold')).toBeInTheDocument();
   });
+
+  it('reveals wumpus sprite when revealWumpus is true', () => {
+    renderTile({ revealWumpus: true, isExplored: true });
+    expect(screen.getByAltText('Wumpus')).toBeInTheDocument();
+  });
 });
+

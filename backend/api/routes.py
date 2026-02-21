@@ -70,7 +70,10 @@ def _sense_message(senses: dict[str, bool]) -> str:
 
 def _get_agent() -> WumpusPolicy:
     global _agent
-    if _agent is None:
+    # Retry loading the real model if currently using the fallback random agent.
+    # This allows the trained model to be picked up after training completes
+    # without requiring a server restart.
+    if _agent is None or isinstance(_agent, RandomWumpusAgent):
         try:
             _agent = WumpusAgent()
         except FileNotFoundError:

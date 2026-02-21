@@ -23,10 +23,22 @@ function Grid({
     () => new Set(exploredTiles.map(([x, y]) => tileKey(x, y))),
     [exploredTiles],
   );
-  const pitSet = new Set(pitTiles.map(([x, y]) => tileKey(x, y)));
-  const goldKey = goldPos ? tileKey(goldPos[0], goldPos[1]) : null;
-  const wumpusKey = wumpusPos ? tileKey(wumpusPos[0], wumpusPos[1]) : null;
+  const pitSet = useMemo(
+    () => new Set(pitTiles.map(([x, y]) => tileKey(x, y))),
+    [pitTiles],
+  );
+  const goldKey = useMemo(
+    () => (goldPos ? tileKey(goldPos[0], goldPos[1]) : null),
+    [goldPos],
+  );
+  const wumpusKey = useMemo(
+    () => (wumpusPos ? tileKey(wumpusPos[0], wumpusPos[1]) : null),
+    [wumpusPos],
+  );
   const isTerminal = status !== 'idle' && status !== 'Ongoing';
+  const terminalPit = status === 'PlayerLost_Pit';
+  const terminalWumpus = status === 'PlayerLost_Wumpus';
+  const terminalGold = status === 'PlayerWon';
   const tiles = [];
 
   for (let y = 0; y < gridSize; y += 1) {
@@ -42,11 +54,12 @@ function Grid({
           y={y}
           isExplored={isExplored}
           isPlayerHere={isPlayerHere}
-          senses={senses}
-          status={status}
-          revealPit={isTerminal && pitSet.has(currentKey)}
-          revealGold={isTerminal && goldKey === currentKey}
-          revealWumpus={isTerminal && wumpusKey === currentKey}
+          showBreeze={isPlayerHere && senses.breeze}
+          showStench={isPlayerHere && senses.stench}
+          showShine={isPlayerHere && senses.shine}
+          revealPit={isTerminal && (pitSet.has(currentKey) || (isPlayerHere && terminalPit))}
+          revealGold={isTerminal && (goldKey === currentKey || (isPlayerHere && terminalGold))}
+          revealWumpus={isTerminal && (wumpusKey === currentKey || (isPlayerHere && terminalWumpus))}
         />,
       );
     }
