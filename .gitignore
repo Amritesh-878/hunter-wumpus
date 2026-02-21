@@ -13,6 +13,10 @@ API_CONTRACT.md
 AGENTS.md
 Work.md
 
+# Editor and agent config (personal / tooling files)
+.vscode/
+.github/
+
 ### macOS ###
 # General
 .DS_Store
