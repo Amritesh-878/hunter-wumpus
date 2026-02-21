@@ -4,6 +4,7 @@ import random
 from typing import Literal
 
 from .entities import Direction, Position
+from .senses import ScentMemorySystem
 
 GameStatus = Literal["Ongoing", "PlayerWon", "PlayerLost_Pit", "PlayerLost_Wumpus"]
 
@@ -25,6 +26,7 @@ class GameEngine:
         self.gold_pos: Position = Position(0, 0)
         self.pits: list[Position] = []
         self.status: GameStatus = "Ongoing"
+        self._scent_memory: ScentMemorySystem | None = None
         self._reset_board()
 
     def _all_non_start_positions(self) -> list[Position]:
@@ -46,6 +48,7 @@ class GameEngine:
         self.wumpus_pos = selected_positions[0]
         self.gold_pos = selected_positions[1]
         self.pits = selected_positions[2:]
+        self._scent_memory = ScentMemorySystem(size=self.size, wumpus_start=self.wumpus_pos)
 
     def _clamp_position(self, position: Position) -> Position:
         x = max(0, min(self.size - 1, position.x))
@@ -62,11 +65,38 @@ class GameEngine:
         return self._clamp_position(Position(x=position.x - 1, y=position.y))
 
     def move_player(self, direction: Direction) -> GameStatus:
+        previous_player_pos = self.player_pos
         self.player_pos = self._next_position(self.player_pos, direction)
+        self._require_scent_memory().queue_player_trail(previous_player_pos, self.player_pos)
         return self.check_game_over()
 
     def move_wumpus(self, direction: Direction) -> None:
         self.wumpus_pos = self._next_position(self.wumpus_pos, direction)
+        self._require_scent_memory().record_wumpus_visit(self.wumpus_pos)
+
+    def _update_scent(self) -> None:
+        self._require_scent_memory().update_scent()
+
+    def get_senses(self, pos: Position) -> dict[str, bool]:
+        return self._require_scent_memory().get_senses(
+            pos=pos,
+            pits=self.pits,
+            wumpus_pos=self.wumpus_pos,
+            gold_pos=self.gold_pos,
+        )
+
+    @property
+    def scent_grid(self) -> list[list[int]]:
+        return self._require_scent_memory().scent_grid
+
+    @property
+    def wumpus_visited(self) -> set[tuple[int, int]]:
+        return self._require_scent_memory().wumpus_visited
+
+    def _require_scent_memory(self) -> ScentMemorySystem:
+        if self._scent_memory is None:
+            raise RuntimeError("Scent memory system has not been initialized")
+        return self._scent_memory
 
     def check_game_over(self) -> GameStatus:
         if self.player_pos in self.pits:
