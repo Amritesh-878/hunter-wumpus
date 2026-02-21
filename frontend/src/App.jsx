@@ -1,4 +1,5 @@
 import { startGame } from './api/gameService';
+import Grid from './components/Grid';
 import { GameProvider, useGame } from './store/GameContext';
 
 function GameShell() {
@@ -31,6 +32,12 @@ function GameShell() {
       <p>
         Position: ({state.playerPos[0]}, {state.playerPos[1]})
       </p>
+      <Grid
+        gridSize={state.gridSize}
+        playerPos={state.playerPos}
+        exploredTiles={state.exploredTiles}
+        senses={state.senses}
+      />
       {state.error ? <p role='alert'>Error: {state.error}</p> : null}
     </main>
   );

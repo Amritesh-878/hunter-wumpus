@@ -1,0 +1,8 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-size), 1fr);
+  width: min(80vw, 600px);
+  aspect-ratio: 1 / 1;
+  gap: 2px;
+  background-color: #111;
+}

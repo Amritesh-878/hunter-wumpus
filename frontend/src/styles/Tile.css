@@ -1,0 +1,42 @@
+.tile {
+  background-color: #2a2a2a;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.tile--fog {
+  background-color: #000;
+  border-color: #000;
+}
+
+.tile--explored {
+  background-color: #3d3d3d;
+}
+
+.tile--player {
+  outline: 2px solid #f2f2f2;
+  outline-offset: -2px;
+}
+
+.tile--sense-breeze {
+  box-shadow: inset 0 0 0 2px #5dade2;
+}
+
+.tile--sense-stench {
+  box-shadow: inset 0 0 0 2px #af7ac5;
+}
+
+.tile--sense-shine {
+  box-shadow: inset 0 0 0 2px #f7dc6f;
+}
+
+.tile--pit {
+  background-color: #1f1f1f;
+}
+
+.tile--gold {
+  background-color: #6d5f1a;
+}
