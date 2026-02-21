@@ -25,7 +25,7 @@ function GameShell() {
     }
   };
 
-  const isGameOver = ['PlayerWon', 'PlayerLost_Pit', 'PlayerLost_Wumpus'].includes(
+  const isGameOver = ['PlayerWon', 'WumpusKilled', 'PlayerLost_Pit', 'PlayerLost_Wumpus'].includes(
     state.status,
   );
 

@@ -42,7 +42,7 @@ export default function GameUI({
     <section className={`game-ui ${isAiming ? 'ui--aiming' : ''}`}>
       <p className='game-ui__label'>Dungeon Log</p>
 
-      {isAiming ? <p className='game-ui__aim-warning'>⚠ AIM MODE</p> : null}
+      {isAiming ? <p className='game-ui__aim-warning'>AIM MODE</p> : null}
 
       <button
         type='button'
@@ -59,8 +59,10 @@ export default function GameUI({
 
       <div className='hud-row game-ui__arrow-row'>
         <span className='game-ui__arrow-label'>Arrow</span>
-        <span className='game-ui__arrow-value'>
-          {isArrowReady ? '🏹 Ready' : '✗ Spent'}
+        <span
+          className={`game-ui__arrow-value ${isArrowReady ? 'hud-arrows--ready' : 'hud-arrows--spent'}`}
+        >
+          {isArrowReady ? '1 Arrow' : 'No Arrows'}
         </span>
       </div>
 
@@ -70,7 +72,7 @@ export default function GameUI({
         onClick={onToggleAim}
         disabled={!canToggleAim}
       >
-        {isAiming ? '🎯 AIM MODE — SHOOT WITH WASD' : '🏹 Press Space to Aim'}
+        {isAiming ? 'AIM MODE — SHOOT WITH WASD' : 'Press Space to Aim'}
       </button>
 
       <section className='game-ui__log' aria-live='polite'>

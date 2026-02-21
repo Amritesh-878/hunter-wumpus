@@ -8,7 +8,7 @@
 /**
  * @typedef {Object} GameState
  * @property {string | null} gameId
- * @property {'idle'|'Ongoing'|'PlayerWon'|'PlayerLost_Pit'|'PlayerLost_Wumpus'} status
+ * @property {'idle'|'Ongoing'|'PlayerWon'|'WumpusKilled'|'PlayerLost_Pit'|'PlayerLost_Wumpus'} status
  * @property {number} gridSize
  * @property {number} turn
  * @property {[number, number]} playerPos

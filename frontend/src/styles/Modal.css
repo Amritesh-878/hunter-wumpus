@@ -32,11 +32,6 @@
   font-size: 1.85rem;
 }
 
-.modal-icon {
-  font-size: 2.4rem;
-  line-height: 1;
-}
-
 .modal-box__title--win {
   color: #ffd700;
 }
@@ -47,6 +42,18 @@
 
 .modal-box__title--wumpus {
   color: #8f3a3a;
+}
+
+.modal-box__title--wumpus-killed {
+  color: #4caf80;
+}
+
+.modal-box[data-status='WumpusKilled'] {
+  border-color: rgba(0, 100, 60, 0.4);
+}
+
+.modal-box[data-status='WumpusKilled'] h2 {
+  color: #4caf80;
 }
 
 .modal-error {

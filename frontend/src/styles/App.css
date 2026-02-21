@@ -84,6 +84,10 @@ body {
   color: #d9cfba;
 }
 
+.game-ui p {
+  line-height: 1.4;
+}
+
 .ui--aiming {
   border-color: rgba(180, 0, 0, 0.65);
   animation: aimPulse 1.2s ease-in-out infinite alternate;
@@ -94,14 +98,14 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.16rem;
   color: #e2a04a;
-  font-family: 'Cinzel', serif;
-  font-size: 0.78rem;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 0.85rem;
 }
 
 .game-ui__aim-warning {
   margin: 0;
   text-align: center;
-  font-family: 'Cinzel', serif;
+  font-family: 'IM Fell English', Georgia, serif;
   font-size: 0.9rem;
   letter-spacing: 0.08rem;
   color: #ff8080;
@@ -144,6 +148,10 @@ body {
   align-items: center;
 }
 
+.hud-row + .hud-row {
+  margin-top: 0.6rem;
+}
+
 .game-ui__turn-row {
   justify-content: center;
 }
@@ -165,13 +173,22 @@ body {
 
 .game-ui__arrow-label {
   font-size: 0.92rem;
+  font-family: 'IM Fell English', Georgia, serif;
   color: #a9a2b0;
 }
 
 .game-ui__arrow-value {
-  font-family: 'Cinzel', serif;
-  color: #e2a04a;
+  font-family: 'IM Fell English', Georgia, serif;
   font-size: 0.92rem;
+}
+
+.hud-arrows--ready {
+  color: #e2a04a;
+}
+
+.hud-arrows--spent {
+  color: #666;
+  text-decoration: line-through;
 }
 
 .btn-aim {
@@ -212,8 +229,9 @@ body {
   margin: 0;
   color: #e2a04a;
   font-style: italic;
-  font-size: 0.88rem;
-  line-height: 1.25;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-family: 'IM Fell English', Georgia, serif;
 }
 
 .game-ui__message + .game-ui__message {
@@ -225,7 +243,7 @@ body {
 }
 
 .controls-legend {
-  margin-top: auto;
+  margin-top: 0.75rem;
   border: 1px solid #2a2840;
   border-radius: 6px;
   background: #11101a;
@@ -237,8 +255,8 @@ body {
   color: #e2a04a;
   text-transform: uppercase;
   letter-spacing: 0.1rem;
-  font-family: 'Cinzel', serif;
-  font-size: 0.75rem;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 0.85rem;
 }
 
 .controls-grid {
@@ -247,6 +265,7 @@ body {
   gap: 0.45rem 0.7rem;
   align-items: center;
   font-size: 0.82rem;
+  font-family: 'IM Fell English', Georgia, serif;
 }
 
 .controls-grid span {
@@ -262,8 +281,8 @@ kbd {
   border: 1px solid #3e3b56;
   background: #1a1828;
   color: #ddd4c1;
-  font-size: 0.72rem;
-  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-family: 'IM Fell English', Georgia, serif;
 }
 
 .app__error {

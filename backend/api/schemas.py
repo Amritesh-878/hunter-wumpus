@@ -15,7 +15,13 @@ ActionType = Literal[
     "SHOOT_WEST",
 ]
 
-GameStatus = Literal["Ongoing", "PlayerWon", "PlayerLost_Pit", "PlayerLost_Wumpus"]
+GameStatus = Literal[
+    "Ongoing",
+    "PlayerWon",
+    "WumpusKilled",
+    "PlayerLost_Pit",
+    "PlayerLost_Wumpus",
+]
 
 
 class StartRequest(BaseModel):

@@ -49,6 +49,8 @@ def _add_explored(session: SessionState) -> None:
 def _status_message(status: str) -> str:
     if status == "PlayerWon":
         return "You found the gold and escaped. Victory."
+    if status == "WumpusKilled":
+        return "The Wumpus is dead. Silence fills the dungeon."
     if status == "PlayerLost_Pit":
         return "The ground gave way. There was no bottom."
     if status == "PlayerLost_Wumpus":
@@ -165,7 +167,7 @@ def move(request: MoveRequest) -> GameStateResponse:
             raise HTTPException(status_code=400, detail="No arrows remaining.")
         session.arrows_remaining = 0
         if _arrow_hits_wumpus(session.engine, direction):
-            session.engine.status = "PlayerWon"
+            session.engine.status = "WumpusKilled"
             session.message = "Your arrow finds its mark. The Wumpus is dead."
         else:
             session.engine.status = session.engine.check_game_over()

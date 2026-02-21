@@ -18,8 +18,8 @@ describe('GameUI', () => {
     );
 
     expect(screen.getByText('Turn #4')).toBeInTheDocument();
-    expect(screen.getByText('🏹 Ready')).toBeInTheDocument();
-    expect(screen.getByText('🎯 AIM MODE — SHOOT WITH WASD')).toBeInTheDocument();
+    expect(screen.getByText('1 Arrow')).toBeInTheDocument();
+    expect(screen.getByText('AIM MODE — SHOOT WITH WASD')).toBeInTheDocument();
     expect(screen.getByText('You feel a cold draft.')).toBeInTheDocument();
   });
 
@@ -37,7 +37,7 @@ describe('GameUI', () => {
       />,
     );
 
-    expect(screen.getByText('🏹 Press Space to Aim')).toBeDisabled();
+    expect(screen.getByText('Press Space to Aim')).toBeDisabled();
   });
 
   it('calls handlers on button clicks', () => {
@@ -58,7 +58,7 @@ describe('GameUI', () => {
     );
 
     fireEvent.click(screen.getByText('New Game'));
-    fireEvent.click(screen.getByText('🏹 Press Space to Aim'));
+    fireEvent.click(screen.getByText('Press Space to Aim'));
 
     expect(onStartGame).toHaveBeenCalledTimes(1);
     expect(onToggleAim).toHaveBeenCalledTimes(1);

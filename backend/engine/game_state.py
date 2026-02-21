@@ -6,7 +6,13 @@ from typing import Literal
 from .entities import Direction, Position
 from .senses import ScentMemorySystem
 
-GameStatus = Literal["Ongoing", "PlayerWon", "PlayerLost_Pit", "PlayerLost_Wumpus"]
+GameStatus = Literal[
+    "Ongoing",
+    "PlayerWon",
+    "WumpusKilled",
+    "PlayerLost_Pit",
+    "PlayerLost_Wumpus",
+]
 
 
 class GameEngine:

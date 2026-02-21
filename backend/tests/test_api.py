@@ -107,6 +107,7 @@ def test_move_resolves_turn_in_order_and_increments_turn(monkeypatch: Any) -> No
     assert payload["status"] in {
         "Ongoing",
         "PlayerWon",
+        "WumpusKilled",
         "PlayerLost_Pit",
         "PlayerLost_Wumpus",
     }

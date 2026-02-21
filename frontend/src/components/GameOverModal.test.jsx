@@ -19,6 +19,11 @@ describe('GameOverModal', () => {
       'You Fell.',
       'The ground gave way. There was no bottom.',
     ],
+    [
+      'WumpusKilled',
+      'The Hunt Ends.',
+      'Your arrow found its mark in the dark. The Wumpus is slain.',
+    ],
   ])('renders status message for %s', (status, title, body) => {
     const { container } = render(
       <GameOverModal
@@ -36,6 +41,18 @@ describe('GameOverModal', () => {
       'data-status',
       status,
     );
+  });
+
+  it('renders WumpusKilled message', () => {
+    render(
+      <GameOverModal
+        status='WumpusKilled'
+        isLoading={false}
+        onPlayAgain={() => {}}
+      />,
+    );
+
+    expect(screen.getByText('The Hunt Ends.')).toBeInTheDocument();
   });
 
   it('does not render for non-terminal status', () => {
