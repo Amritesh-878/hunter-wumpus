@@ -25,7 +25,17 @@ describe('useControls', () => {
     vi.clearAllMocks();
   });
 
-  it('maps directional keys to movement actions', async () => {
+  it.each([
+    [{ key: 'w', code: 'KeyW' }, 'NORTH'],
+    [{ key: 'W', code: 'KeyW' }, 'NORTH'],
+    [{ key: 'ArrowUp', code: 'ArrowUp' }, 'NORTH'],
+    [{ key: 's', code: 'KeyS' }, 'SOUTH'],
+    [{ key: 'ArrowDown', code: 'ArrowDown' }, 'SOUTH'],
+    [{ key: 'd', code: 'KeyD' }, 'EAST'],
+    [{ key: 'ArrowRight', code: 'ArrowRight' }, 'EAST'],
+    [{ key: 'a', code: 'KeyA' }, 'WEST'],
+    [{ key: 'ArrowLeft', code: 'ArrowLeft' }, 'WEST'],
+  ])('maps %j to movement action %s', async (eventInit, expectedAction) => {
     const dispatch = vi.fn();
     const state = {
       ...initialState,
@@ -52,12 +62,10 @@ describe('useControls', () => {
       wrapper: createWrapper(state, dispatch),
     });
 
-    window.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'w', code: 'KeyW' }),
-    );
+    window.dispatchEvent(new KeyboardEvent('keydown', eventInit));
 
     await waitFor(() => {
-      expect(movePlayer).toHaveBeenCalledWith('game-1', 'NORTH');
+      expect(movePlayer).toHaveBeenCalledWith('game-1', expectedAction);
     });
   });
 

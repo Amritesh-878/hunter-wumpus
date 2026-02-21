@@ -1,4 +1,4 @@
-import { startGame } from './api/gameService';
+import { startGame as startGameRequest } from './api/gameService';
 import GameOverModal from './components/GameOverModal';
 import GameUI from './components/GameUI';
 import Grid from './components/Grid';
@@ -21,12 +21,12 @@ function GameShell() {
   const { state, dispatch } = useGame();
   const { isAiming, toggleAim } = useControls();
 
-  const handleStartGame = async () => {
+  const startGame = async () => {
     dispatch({ type: 'RESET_STATE' });
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      const gameState = await startGame(state.gridSize);
+      const gameState = await startGameRequest(state.gridSize);
       dispatch({ type: 'UPDATE_STATE', payload: gameState });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -34,11 +34,11 @@ function GameShell() {
     }
   };
 
-  const handlePlayAgain = async () => {
+  const resetGame = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      const gameState = await startGame(state.gridSize);
+      const gameState = await startGameRequest(state.gridSize);
       dispatch({ type: 'RESET_STATE' });
       dispatch({ type: 'UPDATE_STATE', payload: gameState });
     } catch (error) {
@@ -57,7 +57,7 @@ function GameShell() {
         isAiming={isAiming}
         isLoading={state.isLoading}
         status={state.status}
-        onStartGame={handleStartGame}
+        onStartGame={startGame}
         onToggleAim={toggleAim}
       />
       <p className='app__meta'>Status: {state.status}</p>
@@ -83,7 +83,7 @@ function GameShell() {
           status={state.status}
           isLoading={state.isLoading}
           error={state.error}
-          onPlayAgain={handlePlayAgain}
+          onPlayAgain={resetGame}
         />
       ) : null}
     </main>

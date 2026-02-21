@@ -20,7 +20,7 @@ describe('GameOverModal', () => {
       'The ground gave way. There was no bottom.',
     ],
   ])('renders status message for %s', (status, title, body) => {
-    render(
+    const { container } = render(
       <GameOverModal
         status={status}
         isLoading={false}
@@ -32,6 +32,10 @@ describe('GameOverModal', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText(title)).toBeInTheDocument();
     expect(screen.getByText(body)).toBeInTheDocument();
+    expect(container.querySelector('.modal-box')).toHaveAttribute(
+      'data-status',
+      status,
+    );
   });
 
   it('does not render for non-terminal status', () => {

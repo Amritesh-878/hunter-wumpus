@@ -2,7 +2,8 @@
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -10,12 +11,14 @@
 
 .modal-box {
   width: min(420px, 100%);
-  background: Canvas;
-  border: 1px solid currentColor;
+  background: #1a1a1e;
+  border: 1px solid #3a3a45;
   border-radius: 0.75rem;
   padding: 1rem;
   display: grid;
   gap: 0.75rem;
+  text-align: center;
+  color: #e0e0e0;
 }
 
 .modal-box h2,
@@ -23,23 +26,79 @@
   margin: 0;
 }
 
+.modal-box h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+}
+
+.modal-box[data-status='PlayerWon'] {
+  border-color: #ffd700;
+}
+
+.modal-box[data-status='PlayerWon'] h2 {
+  color: #ffd700;
+}
+
+.modal-box[data-status^='PlayerLost'] {
+  border-color: #8b0000;
+}
+
+.modal-box[data-status^='PlayerLost'] h2 {
+  color: #8b0000;
+}
+
 .modal-error {
   font-weight: 700;
 }
 
 .play-again-btn {
-  justify-self: start;
+  justify-self: center;
+  font-family: 'Cinzel', serif;
+  background: linear-gradient(180deg, #272730 0%, #16161d 100%);
+  color: #e2a04a;
+  border: 1px solid #3a3a45;
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.play-again-btn:hover:not(:disabled) {
+  box-shadow: 0 0 8px rgba(226, 160, 74, 0.4);
+}
+
+.play-again-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .loading-overlay {
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.9);
   display: grid;
   place-items: center;
 }
 
 .loading-overlay p {
   margin: 0;
+  font-family: 'Cinzel', serif;
+  color: #8b0000;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  animation: breathe 2.1s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
 }

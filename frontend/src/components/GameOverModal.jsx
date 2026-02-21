@@ -31,7 +31,7 @@ export default function GameOverModal({
 
   return (
     <div className='modal-overlay' role='dialog' aria-modal='true'>
-      <div className='modal-box'>
+      <div className='modal-box' data-status={status}>
         <h2>{message.title}</h2>
         <p>{message.body}</p>
         {error ? (

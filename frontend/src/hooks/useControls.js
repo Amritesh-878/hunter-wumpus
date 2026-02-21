@@ -3,14 +3,14 @@ import { useCallback, useEffect } from 'react';
 import { movePlayer } from '../api/gameService';
 import { useGame } from '../store/GameContext';
 
-const KEY_TO_DIRECTION = {
-  w: 'NORTH',
+const CODE_TO_DIRECTION = {
+  KeyW: 'NORTH',
   ArrowUp: 'NORTH',
-  s: 'SOUTH',
+  KeyS: 'SOUTH',
   ArrowDown: 'SOUTH',
-  d: 'EAST',
+  KeyD: 'EAST',
   ArrowRight: 'EAST',
-  a: 'WEST',
+  KeyA: 'WEST',
   ArrowLeft: 'WEST',
 };
 
@@ -68,7 +68,7 @@ export function useControls() {
         return;
       }
 
-      const direction = KEY_TO_DIRECTION[e.key];
+      const direction = CODE_TO_DIRECTION[e.code];
 
       if (!direction) {
         return;
