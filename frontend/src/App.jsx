@@ -1,11 +1,16 @@
 import { startGame } from './api/gameService';
+import GameUI from './components/GameUI';
 import Grid from './components/Grid';
+import { useControls } from './hooks/useControls';
 import { GameProvider, useGame } from './store/GameContext';
+import './styles/App.css';
 
 function GameShell() {
   const { state, dispatch } = useGame();
+  const { isAiming, toggleAim } = useControls();
 
   const handleStartGame = async () => {
+    dispatch({ type: 'RESET_STATE' });
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
@@ -18,17 +23,18 @@ function GameShell() {
   };
 
   return (
-    <main>
+    <main className='app'>
       <h1>Hunter Wumpus</h1>
-      <button
-        type='button'
-        onClick={handleStartGame}
-        disabled={state.isLoading}
-      >
-        {state.isLoading ? 'Starting...' : 'Start Game'}
-      </button>
-      <p>Status: {state.status}</p>
-      <p>Turn: {state.turn}</p>
+      <GameUI
+        arrowsRemaining={state.arrowsRemaining}
+        isAiming={isAiming}
+        isLoading={state.isLoading}
+        status={state.status}
+        onStartGame={handleStartGame}
+        onToggleAim={toggleAim}
+      />
+      <p className='app__meta'>Status: {state.status}</p>
+      <p className='app__meta'>Turn: {state.turn}</p>
       <p>
         Position: ({state.playerPos[0]}, {state.playerPos[1]})
       </p>
@@ -39,7 +45,11 @@ function GameShell() {
         senses={state.senses}
         status={state.status}
       />
-      {state.error ? <p role='alert'>Error: {state.error}</p> : null}
+      {state.error ? (
+        <p role='alert' className='app__error'>
+          Error: {state.error}
+        </p>
+      ) : null}
     </main>
   );
 }
