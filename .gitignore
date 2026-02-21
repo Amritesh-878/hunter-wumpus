@@ -1,6 +1,11 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,windows,react,node,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python,windows,react,node,macos
 
+# Project-specific exclusions
+*.png
+orchestrator-temp*.md
+Work.md
+
 ### macOS ###
 # General
 .DS_Store
