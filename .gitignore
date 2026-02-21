@@ -4,6 +4,13 @@
 # Project-specific exclusions
 *.png
 orchestrator-temp*.md
+
+# Planning and agent coordination files (internal use only)
+backend_tasks/
+frontend_tasks/
+MASTER_PLAN.md
+API_CONTRACT.md
+AGENTS.md
 Work.md
 
 ### macOS ###
