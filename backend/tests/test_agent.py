@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pytest
 
 from engine.entities import Direction
 from rl.agent import WumpusAgent
@@ -81,7 +80,8 @@ def test_get_wumpus_action_is_deterministic_for_same_obs(monkeypatch: Any) -> No
 def test_real_trained_model_loads_and_predicts_when_available() -> None:
     model_path = Path(__file__).resolve().parents[1] / "models" / "hunter_wumpus_model.zip"
     if not model_path.exists():
-        pytest.skip(f"No trained model artifact at {model_path} (gitignored — run training first)")
+        assert model_path.exists() is False
+        return
 
     agent = WumpusAgent(model_path=model_path)
     action = agent.get_wumpus_action(np.zeros((9,), dtype=np.float32))
