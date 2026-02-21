@@ -1,9 +1,21 @@
 import { startGame } from './api/gameService';
+import GameOverModal from './components/GameOverModal';
 import GameUI from './components/GameUI';
 import Grid from './components/Grid';
+import LoadingOverlay from './components/LoadingOverlay';
 import { useControls } from './hooks/useControls';
 import { GameProvider, useGame } from './store/GameContext';
 import './styles/App.css';
+
+const TERMINAL_STATUSES = new Set([
+  'PlayerWon',
+  'PlayerLost_Pit',
+  'PlayerLost_Wumpus',
+]);
+
+function isTerminalStatus(status) {
+  return TERMINAL_STATUSES.has(status);
+}
 
 function GameShell() {
   const { state, dispatch } = useGame();
@@ -21,6 +33,21 @@ function GameShell() {
       dispatch({ type: 'SET_ERROR', payload: message });
     }
   };
+
+  const handlePlayAgain = async () => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+
+    try {
+      const gameState = await startGame(state.gridSize);
+      dispatch({ type: 'RESET_STATE' });
+      dispatch({ type: 'UPDATE_STATE', payload: gameState });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      dispatch({ type: 'SET_ERROR', payload: message });
+    }
+  };
+
+  const isGameOver = isTerminalStatus(state.status);
 
   return (
     <main className='app'>
@@ -49,6 +76,15 @@ function GameShell() {
         <p role='alert' className='app__error'>
           Error: {state.error}
         </p>
+      ) : null}
+      {state.isLoading ? <LoadingOverlay /> : null}
+      {isGameOver ? (
+        <GameOverModal
+          status={state.status}
+          isLoading={state.isLoading}
+          error={state.error}
+          onPlayAgain={handlePlayAgain}
+        />
       ) : null}
     </main>
   );
