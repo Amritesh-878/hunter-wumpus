@@ -10,14 +10,17 @@ describe('GameUI', () => {
         isAiming={true}
         isLoading={false}
         status='Ongoing'
+        turn={4}
+        playerPos={[2, 3]}
         onStartGame={() => {}}
         onToggleAim={() => {}}
       />,
     );
 
-    expect(screen.getByText('Ammo: 1')).toBeInTheDocument();
-    expect(screen.getByText('Aim Mode: ON')).toBeInTheDocument();
-    expect(screen.getByText('Cancel Aim')).toBeInTheDocument();
+    expect(screen.getByText('Turn: 4')).toBeInTheDocument();
+    expect(screen.getByText('Arrow: 🏹')).toBeInTheDocument();
+    expect(screen.getByText('🎯 AIM MODE — SHOOT WITH WASD')).toBeInTheDocument();
+    expect(screen.getByText('Status: Ongoing')).toBeInTheDocument();
   });
 
   it('disables aim button with no arrows', () => {
@@ -27,12 +30,14 @@ describe('GameUI', () => {
         isAiming={false}
         isLoading={false}
         status='Ongoing'
+        turn={0}
+        playerPos={[0, 0]}
         onStartGame={() => {}}
         onToggleAim={() => {}}
       />,
     );
 
-    expect(screen.getByText('Enter Aim')).toBeDisabled();
+    expect(screen.getByText('🏹 Press Space to Aim')).toBeDisabled();
   });
 
   it('calls handlers on button clicks', () => {
@@ -45,13 +50,15 @@ describe('GameUI', () => {
         isAiming={false}
         isLoading={false}
         status='Ongoing'
+        turn={0}
+        playerPos={[0, 0]}
         onStartGame={onStartGame}
         onToggleAim={onToggleAim}
       />,
     );
 
-    fireEvent.click(screen.getByText('Start Game'));
-    fireEvent.click(screen.getByText('Enter Aim'));
+    fireEvent.click(screen.getByText('New Game'));
+    fireEvent.click(screen.getByText('🏹 Press Space to Aim'));
 
     expect(onStartGame).toHaveBeenCalledTimes(1);
     expect(onToggleAim).toHaveBeenCalledTimes(1);

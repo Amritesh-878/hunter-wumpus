@@ -5,29 +5,39 @@
   margin: 0;
   padding: 1.5rem;
   display: grid;
-  gap: 1rem;
-  justify-items: start;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 1.5rem;
+  align-items: start;
   background: radial-gradient(circle at center, #1a1a24 0%, #050508 100%);
   color: #e0e0e0;
   font-family: 'Cinzel', serif;
 }
 
 .app h1 {
+  grid-column: 1 / -1;
   margin: 0;
   color: #e2a04a;
   text-shadow: 0 0 10px rgba(226, 160, 74, 0.3);
   letter-spacing: 2px;
 }
 
+.app__right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 220px;
+  max-width: 300px;
+}
+
 .game-ui {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  flex-wrap: wrap;
-  align-items: center;
   background: rgba(20, 20, 24, 0.85);
   border: 1px solid #3a3a45;
   border-radius: 8px;
-  padding: 1rem 1.5rem;
+  padding: 1rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
@@ -57,12 +67,104 @@
   box-shadow: 0 0 15px rgba(139, 0, 0, 0.6);
 }
 
-.app__meta {
+.hud-row {
   display: flex;
-  gap: 1rem;
-  margin: 0;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  padding: 0.25rem 0;
+}
+
+.btn-start {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  font-family: 'Cinzel', serif;
+}
+
+.btn-aim {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.btn-aim--active {
+  background: linear-gradient(180deg, #5a0000, #3a0000) !important;
+  color: #ff6666 !important;
+  border-color: #8b0000 !important;
+  box-shadow: 0 0 12px rgba(139, 0, 0, 0.7) !important;
+  animation: aimPulse 1.2s infinite alternate;
+}
+
+@keyframes aimPulse {
+  from {
+    box-shadow: 0 0 8px rgba(139, 0, 0, 0.5);
+  }
+
+  to {
+    box-shadow: 0 0 18px rgba(200, 0, 0, 0.9);
+  }
+}
+
+.controls-legend {
+  background: rgba(10, 10, 14, 0.6);
+  border: 1px solid #2a2a35;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.controls-title {
+  margin: 0 0 0.5rem;
+  color: #888890;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 0.75rem;
+  align-items: center;
+}
+
+kbd {
+  background: rgba(58, 58, 69, 0.8);
+  border: 1px solid #5a5a65;
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #e2a04a;
+}
+
+.app__hud-info {
+  border-top: 1px solid #2f2f39;
+  padding-top: 0.5rem;
+}
+
+.app__hud-info p {
+  margin: 0.2rem 0;
+  font-size: 0.85rem;
 }
 
 .app__error {
   margin: 0;
+  grid-column: 1 / -1;
+  background: rgba(139, 0, 0, 0.2);
+  border: 1px solid #8b0000;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  color: #ff6666;
+}
+
+.app__message {
+  grid-column: 1 / -1;
+  margin: 0;
+  background: rgba(226, 160, 74, 0.1);
+  border-left: 3px solid #e2a04a;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  color: #e2a04a;
+  border-radius: 0 4px 4px 0;
 }
