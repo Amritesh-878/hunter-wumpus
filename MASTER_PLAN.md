@@ -8,7 +8,7 @@
 
 ## 🎯 PROJECT COMPLETION SUMMARY
 
-**Status:** 🚧 **IN PROGRESS (6/10 COMPLETE)**
+**Status:** 🚧 **IN PROGRESS (7/10 COMPLETE)**
 
 **Overview of all tasks:**
 
@@ -17,7 +17,7 @@
 | 1     | TODO-001: Core Game Engine & State Management | ✅     | ✅    | ✅    |
 | 2     | TODO-002: Scent Trail & Memory System         | ✅     | ✅    | ✅    |
 | 3     | TODO-003: RL Environment Wrapper (Gymnasium)  | ✅     | ✅    | ✅    |
-| 4     | TODO-004: Agent Training & Inference          | ⏳     | ❓    | ❓    |
+| 4     | TODO-004: Agent Training & Inference          | ✅     | ✅    | ✅    |
 | 5     | TODO-005: REST API Server                     | ⏳     | ❓    | ❓    |
 | 6     | TODO-006: Core UI & State Setup               | ✅     | ✅    | ✅    |
 | 7     | TODO-007: Grid Rendering & Fog of War         | ✅     | ✅    | ✅    |
@@ -820,6 +820,32 @@ Build status: ✅ PASS
 
 - `PlayerWon` in current engine maps to a single terminal status, so both “gold pickup” and “wumpus killed by shot” resolve to the same RL penalty (`-100`) until distinct terminal labels exist.
 - Training and inference modules (`backend/rl/train.py` and `backend/rl/agent.py`) should consume the locked `(9,)` observation contract exactly.
+
+### Breaking changes:
+
+- None.
+
+## TODO-004 Handoff Notes
+
+Completed by: GPT-5.3-Codex
+Build status: ✅ PASS
+
+### What was done:
+
+- Added `backend/rl/train.py` implementing PPO training (`1,000,000` timesteps), evaluation callbacks, random-policy baseline comparison, and model save to `backend/models/hunter_wumpus_model.zip`.
+- Added `backend/rl/agent.py` implementing stateless `WumpusAgent` inference with model path resolution via `MODEL_PATH` env var or default config path.
+- Added `WumpusAgent.build_observation(game_state)` to build the locked `(9,)` observation vector from raw internal state (`grid_size`, `player_pos`, `wumpus_pos`, `scent_grid`).
+- Added `backend/tests/test_agent.py` covering locked observation indexing, deterministic action behavior for identical observations, and real trained-model load/inference.
+- Added `backend/mypy.ini` for stable third-party typing behavior on Windows and updated `backend/rl/__init__.py` exports.
+- Added model artifact ignore rule in `.gitignore` for `backend/models/`.
+
+### Tests passing: ✅ All (24/24)
+
+### Warnings to next implementor:
+
+- `WumpusAgent.decide_from_state` expects internal engine-style state including hidden fields (`wumpus_pos`, `scent_grid`); API-facing payloads intentionally omit these.
+- Keep `MODEL_PATH` configured for production deployments; default path is `backend/models/hunter_wumpus_model.zip`.
+- `backend/models/best_model.zip` and `backend/models/evaluations.npz` are produced by `EvalCallback` during training and are ignored by git.
 
 ### Breaking changes:
 

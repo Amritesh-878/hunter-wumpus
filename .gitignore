@@ -402,3 +402,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,windows,react,node,macos
+
+# Hunter Wumpus trained model artifacts
+backend/models/

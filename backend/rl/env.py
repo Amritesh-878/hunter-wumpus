@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import random
-from typing import Any
+from typing import Any, ClassVar
 
 import gymnasium as gym
 import numpy as np
+import numpy.typing as npt
 from gymnasium import spaces
 
 from engine.entities import Direction, Position
@@ -13,7 +14,7 @@ from engine.senses import MAX_SCENT
 
 
 class HunterWumpusEnv(gym.Env):
-    metadata = {"render_modes": []}
+    metadata: ClassVar[dict[str, list[str]]] = {"render_modes": []}
 
     def __init__(self, size: int = 4, num_pits: int = 3, max_steps: int = 200) -> None:
         super().__init__()
@@ -36,7 +37,7 @@ class HunterWumpusEnv(gym.Env):
         *,
         seed: int | None = None,
         options: dict[str, Any] | None = None,
-    ) -> tuple[np.ndarray, dict[str, Any]]:
+    ) -> tuple[npt.NDArray[np.float32], dict[str, Any]]:
         del options
         super().reset(seed=seed)
         if seed is not None:
@@ -45,7 +46,10 @@ class HunterWumpusEnv(gym.Env):
         self.step_count = 0
         return self._get_obs(), {}
 
-    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict[str, Any]]:
+    def step(
+        self,
+        action: int,
+    ) -> tuple[npt.NDArray[np.float32], float, bool, bool, dict[str, Any]]:
         self.step_count += 1
 
         direction = self._action_to_direction(action)
@@ -93,12 +97,12 @@ class HunterWumpusEnv(gym.Env):
         sampled = int(self.np_random.integers(0, 4))
         return self._action_to_direction(sampled)
 
-    def _get_obs(self) -> np.ndarray:
+    def _get_obs(self) -> npt.NDArray[np.float32]:
         denom = float(max(1, self.size - 1))
         wumpus = self.engine.wumpus_pos
         player = self.engine.player_pos
 
-        obs = np.array(
+        obs: npt.NDArray[np.float32] = np.array(
             [
                 wumpus.x / denom,
                 wumpus.y / denom,
