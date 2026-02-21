@@ -12,6 +12,7 @@ describe('Grid', () => {
         playerPos={[0, 0]}
         exploredTiles={[[0, 0]]}
         senses={senses}
+        status='Ongoing'
       />,
     );
 
@@ -29,6 +30,7 @@ describe('Grid', () => {
         playerPos={[2, 2]}
         exploredTiles={[[0, 0]]}
         senses={senses}
+        status='Ongoing'
       />,
     );
 
@@ -37,5 +39,25 @@ describe('Grid', () => {
     expect(playerTile).toHaveClass('tile--player');
     expect(playerTile).toHaveClass('tile--explored');
     expect(playerTile).not.toHaveClass('tile--fog');
+  });
+
+  it('reveals mapped pit and gold tiles after terminal state', () => {
+    const { container } = render(
+      <Grid
+        gridSize={3}
+        playerPos={[0, 0]}
+        exploredTiles={[[0, 0]]}
+        senses={senses}
+        status='PlayerLost_Wumpus'
+        pitTiles={[[1, 1]]}
+        goldPos={[2, 0]}
+      />,
+    );
+
+    const pitTile = container.querySelector('[data-x="1"][data-y="1"]');
+    const goldTile = container.querySelector('[data-x="2"][data-y="0"]');
+
+    expect(pitTile).toHaveClass('tile--pit');
+    expect(goldTile).toHaveClass('tile--gold');
   });
 });

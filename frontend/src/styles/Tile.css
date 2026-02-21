@@ -4,39 +4,92 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  position: relative;
+  overflow: hidden;
 }
-
 .tile--fog {
   background-color: #000;
   border-color: #000;
 }
-
 .tile--explored {
   background-color: #3d3d3d;
 }
-
 .tile--player {
   outline: 2px solid #f2f2f2;
   outline-offset: -2px;
 }
-
-.tile--sense-breeze {
-  box-shadow: inset 0 0 0 2px #5dade2;
+.tile--sense-breeze::after,
+.tile--sense-stench::after,
+.tile--sense-shine::after {
+  content: '';
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  opacity: 0.95;
+  z-index: 4;
 }
-
-.tile--sense-stench {
-  box-shadow: inset 0 0 0 2px #af7ac5;
+.tile--sense-breeze::after {
+  left: 2px;
+  bottom: 2px;
 }
-
-.tile--sense-shine {
-  box-shadow: inset 0 0 0 2px #f7dc6f;
+.tile--sense-stench::after {
+  right: 2px;
+  bottom: 2px;
 }
-
+.tile--sense-shine::after {
+  right: 2px;
+  top: 2px;
+}
 .tile--pit {
   background-color: #1f1f1f;
 }
-
 .tile--gold {
   background-color: #6d5f1a;
+}
+.tile [data-entity='player'] {
+  width: 1.15rem;
+  height: 1.15rem;
+  z-index: 3;
+}
+.tile [data-entity='pit'],
+.tile [data-entity='gold'],
+.tile [data-entity='wumpus'] {
+  position: absolute;
+  width: 1.2rem;
+  height: 1.2rem;
+  z-index: 2;
+}
+.tile [data-entity='pit'] {
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.tile [data-entity='gold'] {
+  top: 2px;
+  left: 2px;
+}
+.tile [data-entity='wumpus'] {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.tile [data-sense='breeze'],
+.tile [data-sense='stench'],
+.tile [data-sense='shine'] {
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  z-index: 5;
+}
+.tile [data-sense='breeze'] {
+  bottom: 2px;
+  left: 2px;
+}
+.tile [data-sense='stench'] {
+  bottom: 2px;
+  right: 2px;
+}
+.tile [data-sense='shine'] {
+  top: 2px;
+  right: 2px;
 }

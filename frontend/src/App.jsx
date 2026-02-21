@@ -37,6 +37,7 @@ function GameShell() {
         playerPos={state.playerPos}
         exploredTiles={state.exploredTiles}
         senses={state.senses}
+        status={state.status}
       />
       {state.error ? <p role='alert'>Error: {state.error}</p> : null}
     </main>
