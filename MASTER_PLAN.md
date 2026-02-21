@@ -8,7 +8,7 @@
 
 ## 🎯 PROJECT COMPLETION SUMMARY
 
-**Status:** ⏳ **NOT STARTED**
+**Status:** 🚧 **IN PROGRESS (1/10 COMPLETE)**
 
 **Overview of all tasks:**
 
@@ -19,7 +19,7 @@
 | 3     | TODO-003: RL Environment Wrapper (Gymnasium)  | ⏳     | ❓    | ❓    |
 | 4     | TODO-004: Agent Training & Inference          | ⏳     | ❓    | ❓    |
 | 5     | TODO-005: REST API Server                     | ⏳     | ❓    | ❓    |
-| 6     | TODO-006: Core UI & State Setup               | ⏳     | ❓    | ❓    |
+| 6     | TODO-006: Core UI & State Setup               | ✅     | ✅    | ✅    |
 | 7     | TODO-007: Grid Rendering & Fog of War         | ⏳     | ❓    | ❓    |
 | 8     | TODO-008: Sensory Indicators & Sprites        | ⏳     | ❓    | ❓    |
 | 9     | TODO-009: Player Controls & Combat Mechanics  | ⏳     | ❓    | ❓    |
@@ -797,3 +797,30 @@ Frontend (React)
                                                                  │
 [TODO 010: Game Loop] ◀── [TODO 009: Controls/Combat] ◀─────────┘
 ```
+
+---
+
+## TODO-006 Handoff Notes
+
+Completed by: GPT-5.3-Codex
+Build status: ✅ PASS
+
+### What was done:
+
+- Scaffolded a Vite + React frontend in `frontend/` with Node 24 engine compatibility.
+- Implemented `frontend/src/api/gameService.js` with `startGame`, `movePlayer`, and `getStatus` fetch wrappers that throw on non-2xx responses.
+- Implemented `frontend/src/store/gameReducer.js` with locked `initialState`, required reducer actions, and exact snake_case→camelCase mapping in `UPDATE_STATE`.
+- Implemented `frontend/src/store/GameContext.jsx` with `GameProvider` and `useGame` hook.
+- Implemented `frontend/src/App.jsx` and `frontend/src/main.jsx` to wire provider and Start Game flow with loading/error dispatch.
+- Added unit tests for API service and reducer mapping/state transitions.
+
+### Tests passing: ✅ All (6/6)
+
+### Warnings to next implementor:
+
+- Package manager in this worktree is `pnpm`; lockfile is `frontend/pnpm-lock.yaml`.
+- Keep API snake_case mapping centralized in reducer `UPDATE_STATE`; do not store backend keys directly in component state.
+
+### Breaking changes:
+
+- None.

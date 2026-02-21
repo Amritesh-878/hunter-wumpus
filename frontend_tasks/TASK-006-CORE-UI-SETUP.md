@@ -94,15 +94,15 @@ VITE_API_BASE_URL=http://localhost:8000
 
 ### Functional Requirements
 
-- [ ] Clicking "Start Game" successfully fetches the initial state from the Python backend and populates the context.
-- [ ] Global state correctly holds all fields defined in the `GameState` JSDoc typedef above.
-- [ ] `isLoading` is set to `true` before any API call and `false` on both success **and** failure.
+- [x] Clicking "Start Game" successfully fetches the initial state from the Python backend and populates the context.
+- [x] Global state correctly holds all fields defined in the `GameState` JSDoc typedef above.
+- [x] `isLoading` is set to `true` before any API call and `false` on both success **and** failure.
 
 ### Code Quality
 
-- [ ] No hardcoded URLs in components — all requests go through `gameService.js` using `import.meta.env.VITE_API_BASE_URL`.
-- [ ] Context provider wraps the entire application in `App.jsx`.
-- [ ] The context default value matches the `GameState` typedef (no `undefined` fields).
+- [x] No hardcoded URLs in components — all requests go through `gameService.js` using `import.meta.env.VITE_API_BASE_URL`.
+- [x] Context provider wraps the entire application in `App.jsx`.
+- [x] The context default value matches the `GameState` typedef (no `undefined` fields).
 
 ---
 
@@ -126,17 +126,25 @@ VITE_API_BASE_URL=http://localhost:8000
 
 ## Handoff Template
 
-**Status:** ⏳ Not Started
+**Status:** ✅ Completed
 
 ```text
-Completed by: [Name/AI Model]
-Build status: ❓
+Completed by: GPT-5.3-Codex
+Build status: ✅ PASS
 
 ### What was done:
-- [Fill in]
+- Scaffolded Vite + React project and configured Vitest, ESLint, and Node 24 engine requirement.
+- Added `gameService` wrappers for `/game/start`, `/game/move`, and `/game/{id}/status` with throw-on-error behavior.
+- Added `gameReducer` with locked `initialState` and exact API snake_case to state camelCase mapping in `UPDATE_STATE`.
+- Added `GameContext` provider/hook and wired it in `App.jsx` and `main.jsx`.
+- Added unit tests for API service behavior and reducer mapping/reset logic.
 
 ### Blockers encountered:
-- [Fill in]
+- None.
+
+### Test summary:
+- `pnpm run lint:fix` ✅
+- `pnpm test` ✅ (6/6 tests passing)
 ```
 
 ---
