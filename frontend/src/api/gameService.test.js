@@ -72,7 +72,7 @@ describe('gameService', () => {
     const result = await movePlayer('test-id', 'EAST');
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      `${import.meta.env.VITE_API_BASE_URL}/game/move`,
+      'http://localhost:8000/game/move',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({ game_id: 'test-id', player_action: 'EAST' }),
