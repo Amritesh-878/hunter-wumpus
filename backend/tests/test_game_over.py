@@ -22,6 +22,7 @@ def test_wumpus_catches_player(engine: GameEngine) -> None:
     player_position = Position(x=1, y=1)
     engine.player_pos = player_position
     engine.wumpus_pos = player_position
+    engine.pits = [Position(x=3, y=0)]
     assert engine.check_game_over() == "PlayerLost_Wumpus"
 
 
