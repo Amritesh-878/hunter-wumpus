@@ -2,10 +2,11 @@
 
 .app {
   min-height: 100vh;
-  margin: 0;
+  margin: 0 auto;
+  width: fit-content;
   padding: 1.5rem;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto min-content;
   grid-template-rows: auto 1fr;
   gap: 1.5rem;
   align-items: start;
@@ -27,7 +28,7 @@
   flex-direction: column;
   gap: 1rem;
   min-width: 220px;
-  max-width: 300px;
+  width: fit-content;
 }
 
 .game-ui {
@@ -138,16 +139,6 @@ kbd {
   color: #e2a04a;
 }
 
-.app__hud-info {
-  border-top: 1px solid #2f2f39;
-  padding-top: 0.5rem;
-}
-
-.app__hud-info p {
-  margin: 0.2rem 0;
-  font-size: 0.85rem;
-}
-
 .app__error {
   margin: 0;
   grid-column: 1 / -1;
@@ -158,13 +149,24 @@ kbd {
   color: #ff6666;
 }
 
-.app__message {
-  grid-column: 1 / -1;
+.game-ui__message {
   margin: 0;
-  background: rgba(226, 160, 74, 0.1);
-  border-left: 3px solid #e2a04a;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  color: #e2a04a;
-  border-radius: 0 4px 4px 0;
+  color: #c8a060;
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 1;
+}
+
+.game-ui__message--fading {
+  animation: messageFadeOut 0.5s ease-out forwards;
+}
+
+@keyframes messageFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }

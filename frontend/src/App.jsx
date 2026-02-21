@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { startGame as startGameRequest } from './api/gameService';
 import GameOverModal from './components/GameOverModal';
 import GameUI from './components/GameUI';
@@ -10,6 +12,33 @@ import './styles/App.css';
 function GameShell() {
   const { state, dispatch } = useGame();
   const { isAiming, toggleAim } = useControls();
+  const [displayedMessage, setDisplayedMessage] = useState('');
+  const [isMessageFading, setIsMessageFading] = useState(false);
+
+  useEffect(() => {
+    if (!state.message) {
+      setDisplayedMessage('');
+      setIsMessageFading(false);
+      return;
+    }
+
+    setDisplayedMessage(state.message);
+    setIsMessageFading(false);
+
+    const fadeTimer = setTimeout(() => {
+      setIsMessageFading(true);
+    }, 3500);
+
+    const clearTimer = setTimeout(() => {
+      setDisplayedMessage('');
+      setIsMessageFading(false);
+    }, 4000);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(clearTimer);
+    };
+  }, [state.message]);
 
   const runStartGame = async (resetBeforeRequest) => {
     if (resetBeforeRequest) dispatch({ type: 'RESET_STATE' });
@@ -32,7 +61,6 @@ function GameShell() {
   return (
     <main className='app'>
       <h1>Hunter Wumpus</h1>
-      {state.message ? <p className='app__message'>{state.message}</p> : null}
       <Grid
         gridSize={state.gridSize}
         playerPos={state.playerPos}
@@ -45,9 +73,10 @@ function GameShell() {
           arrowsRemaining={state.arrowsRemaining}
           isAiming={isAiming}
           isLoading={state.isLoading}
+          message={displayedMessage}
+          isMessageFading={isMessageFading}
           status={state.status}
           turn={state.turn}
-          playerPos={state.playerPos}
           onStartGame={() => runStartGame(true)}
           onToggleAim={toggleAim}
         />

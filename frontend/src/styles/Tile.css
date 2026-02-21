@@ -8,22 +8,22 @@
   overflow: hidden;
 }
 .tile--fog {
-  background-color: #030304;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  background-color: #0a0a0d;
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.9);
 }
 .tile--explored {
-  background-color: #1a1a1e;
+  background-color: #252530;
   background-image: radial-gradient(
     circle at 30% 30%,
-    rgba(255, 255, 255, 0.04) 0,
-    rgba(255, 255, 255, 0) 40%
+    rgba(200, 160, 96, 0.1) 0,
+    rgba(200, 160, 96, 0) 45%
   );
 }
 .tile--player {
   box-shadow:
     inset 0 0 20px rgba(226, 160, 74, 0.6),
     0 0 15px rgba(226, 160, 74, 0.4);
-  background-color: #2a241a;
+  background-color: #2e2818;
 }
 .tile--sense-breeze::after,
 .tile--sense-stench::after,

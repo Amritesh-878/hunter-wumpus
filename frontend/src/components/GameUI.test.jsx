@@ -9,9 +9,10 @@ describe('GameUI', () => {
         arrowsRemaining={1}
         isAiming={true}
         isLoading={false}
+        message='You feel a cold draft.'
+        isMessageFading={false}
         status='Ongoing'
         turn={4}
-        playerPos={[2, 3]}
         onStartGame={() => {}}
         onToggleAim={() => {}}
       />,
@@ -20,7 +21,7 @@ describe('GameUI', () => {
     expect(screen.getByText('Turn: 4')).toBeInTheDocument();
     expect(screen.getByText('Arrow: 🏹')).toBeInTheDocument();
     expect(screen.getByText('🎯 AIM MODE — SHOOT WITH WASD')).toBeInTheDocument();
-    expect(screen.getByText('Status: Ongoing')).toBeInTheDocument();
+    expect(screen.getByText('You feel a cold draft.')).toBeInTheDocument();
   });
 
   it('disables aim button with no arrows', () => {
@@ -29,9 +30,10 @@ describe('GameUI', () => {
         arrowsRemaining={0}
         isAiming={false}
         isLoading={false}
+        message=''
+        isMessageFading={false}
         status='Ongoing'
         turn={0}
-        playerPos={[0, 0]}
         onStartGame={() => {}}
         onToggleAim={() => {}}
       />,
@@ -49,9 +51,10 @@ describe('GameUI', () => {
         arrowsRemaining={1}
         isAiming={false}
         isLoading={false}
+        message=''
+        isMessageFading={false}
         status='Ongoing'
         turn={0}
-        playerPos={[0, 0]}
         onStartGame={onStartGame}
         onToggleAim={onToggleAim}
       />,

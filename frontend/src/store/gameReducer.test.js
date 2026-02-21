@@ -49,4 +49,40 @@ describe('gameReducer', () => {
 
     expect(resetState).toEqual(initialState);
   });
+
+  it('merges explored tiles without duplicates on UPDATE_STATE', () => {
+    const currentState = {
+      ...initialState,
+      exploredTiles: [
+        [0, 0],
+        [1, 0],
+      ],
+    };
+
+    const action = {
+      type: 'UPDATE_STATE',
+      payload: {
+        game_id: 'abc-123',
+        status: 'Ongoing',
+        grid_size: 10,
+        turn: 2,
+        player_pos: [2, 0],
+        arrows_remaining: 1,
+        explored_tiles: [
+          [1, 0],
+          [2, 0],
+        ],
+        senses: { breeze: false, stench: false, shine: false },
+        message: '',
+      },
+    };
+
+    const nextState = gameReducer(currentState, action);
+
+    expect(nextState.exploredTiles).toEqual([
+      [0, 0],
+      [1, 0],
+      [2, 0],
+    ]);
+  });
 });

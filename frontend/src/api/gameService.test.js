@@ -1,4 +1,4 @@
-import { getStatus, movePlayer, startGame } from './gameService';
+import { movePlayer, startGame } from './gameService';
 
 describe('gameService', () => {
   const originalFetch = globalThis.fetch;
@@ -79,16 +79,6 @@ describe('gameService', () => {
       }),
     );
     expect(result).toEqual(payload);
-  });
-
-  it('getStatus throws when backend returns non-2xx', async () => {
-    globalThis.fetch.mockResolvedValue({
-      ok: false,
-      status: 404,
-      json: async () => ({ detail: 'Game not found.' }),
-    });
-
-    await expect(getStatus('missing-id')).rejects.toThrow('Game not found.');
   });
 
   it('startGame propagates network errors', async () => {

@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import Tile from './Tile';
@@ -7,7 +8,7 @@ function tileKey(x, y) {
   return `${x},${y}`;
 }
 
-export default function Grid({
+function Grid({
   gridSize,
   playerPos,
   exploredTiles,
@@ -18,7 +19,10 @@ export default function Grid({
   wumpusPos = null,
 }) {
   const [playerX, playerY] = playerPos;
-  const exploredSet = new Set(exploredTiles.map(([x, y]) => tileKey(x, y)));
+  const exploredSet = useMemo(
+    () => new Set(exploredTiles.map(([x, y]) => tileKey(x, y))),
+    [exploredTiles],
+  );
   const pitSet = new Set(pitTiles.map(([x, y]) => tileKey(x, y)));
   const goldKey = goldPos ? tileKey(goldPos[0], goldPos[1]) : null;
   const wumpusKey = wumpusPos ? tileKey(wumpusPos[0], wumpusPos[1]) : null;
@@ -74,3 +78,5 @@ Grid.propTypes = {
   goldPos: PropTypes.arrayOf(PropTypes.number),
   wumpusPos: PropTypes.arrayOf(PropTypes.number),
 };
+
+export default memo(Grid);

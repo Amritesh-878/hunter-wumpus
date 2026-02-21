@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import breezeIcon from '../assets/breeze.svg';
 import goldSprite from '../assets/gold.svg';
@@ -9,7 +10,7 @@ import wumpusSprite from '../assets/wumpus.svg';
 
 import '../styles/Tile.css';
 
-export default function Tile({
+function Tile({
   x,
   y,
   isExplored,
@@ -100,3 +101,21 @@ Tile.propTypes = {
   revealGold: PropTypes.bool.isRequired,
   revealWumpus: PropTypes.bool.isRequired,
 };
+
+function areTilePropsEqual(previousProps, nextProps) {
+  return (
+    previousProps.x === nextProps.x &&
+    previousProps.y === nextProps.y &&
+    previousProps.isExplored === nextProps.isExplored &&
+    previousProps.isPlayerHere === nextProps.isPlayerHere &&
+    previousProps.status === nextProps.status &&
+    previousProps.revealPit === nextProps.revealPit &&
+    previousProps.revealGold === nextProps.revealGold &&
+    previousProps.revealWumpus === nextProps.revealWumpus &&
+    previousProps.senses.breeze === nextProps.senses.breeze &&
+    previousProps.senses.stench === nextProps.senses.stench &&
+    previousProps.senses.shine === nextProps.senses.shine
+  );
+}
+
+export default memo(Tile, areTilePropsEqual);

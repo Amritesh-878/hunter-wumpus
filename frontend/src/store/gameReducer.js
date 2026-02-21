@@ -43,7 +43,20 @@ export const initialState = {
 
 export function gameReducer(state, action) {
   switch (action.type) {
-    case 'UPDATE_STATE':
+    case 'UPDATE_STATE': {
+      const existingSet = new Set(
+        state.exploredTiles.map(([x, y]) => `${x},${y}`),
+      );
+      const mergedExploredTiles = [...state.exploredTiles];
+
+      for (const tile of action.payload.explored_tiles) {
+        const tileKey = `${tile[0]},${tile[1]}`;
+
+        if (!existingSet.has(tileKey)) {
+          mergedExploredTiles.push(tile);
+        }
+      }
+
       return {
         ...state,
         gameId: action.payload.game_id,
@@ -52,12 +65,13 @@ export function gameReducer(state, action) {
         turn: action.payload.turn,
         playerPos: action.payload.player_pos,
         arrowsRemaining: action.payload.arrows_remaining,
-        exploredTiles: action.payload.explored_tiles,
+        exploredTiles: mergedExploredTiles,
         senses: action.payload.senses,
         message: action.payload.message,
         isLoading: false,
         error: null,
       };
+    }
     case 'SET_LOADING':
       return {
         ...state,

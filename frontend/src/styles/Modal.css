@@ -32,7 +32,7 @@
 }
 
 .modal-box[data-status='PlayerWon'] {
-  border-color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.3);
 }
 
 .modal-box[data-status='PlayerWon'] h2 {
@@ -40,7 +40,7 @@
 }
 
 .modal-box[data-status^='PlayerLost'] {
-  border-color: #8b0000;
+  border-color: rgba(80, 0, 0, 0.4);
 }
 
 .modal-box[data-status^='PlayerLost'] h2 {

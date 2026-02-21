@@ -4,15 +4,15 @@ export default function GameUI({
   arrowsRemaining,
   isAiming,
   isLoading,
+  message,
+  isMessageFading,
   status,
   turn,
-  playerPos,
   onStartGame,
   onToggleAim,
 }) {
   const canToggleAim =
     status === 'Ongoing' && !isLoading && arrowsRemaining > 0;
-  const [playerX, playerY] = playerPos;
 
   return (
     <section className={`game-ui ${isAiming ? 'ui--aiming' : ''}`}>
@@ -53,12 +53,15 @@ export default function GameUI({
         </div>
       </div>
 
-      <div className='app__hud-info'>
-        <p>Status: {status}</p>
-        <p>
-          Position: ({playerX}, {playerY})
+      {message ? (
+        <p
+          className={`game-ui__message ${
+            isMessageFading ? 'game-ui__message--fading' : ''
+          }`}
+        >
+          {message}
         </p>
-      </div>
+      ) : null}
     </section>
   );
 }
@@ -67,9 +70,10 @@ GameUI.propTypes = {
   arrowsRemaining: PropTypes.number.isRequired,
   isAiming: PropTypes.bool.isRequired,
   isLoading: PropTypes.bool.isRequired,
+  message: PropTypes.string.isRequired,
+  isMessageFading: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
   turn: PropTypes.number.isRequired,
-  playerPos: PropTypes.arrayOf(PropTypes.number).isRequired,
   onStartGame: PropTypes.func.isRequired,
   onToggleAim: PropTypes.func.isRequired,
 };

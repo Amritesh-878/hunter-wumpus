@@ -43,14 +43,3 @@ export async function movePlayer(gameId, action) {
 
   return parseResponse(response);
 }
-
-export async function getStatus(gameId) {
-  const response = await fetch(`${BASE_URL}/game/${gameId}/status`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return parseResponse(response);
-}
