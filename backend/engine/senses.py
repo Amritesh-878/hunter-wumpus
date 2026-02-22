@@ -54,6 +54,7 @@ class ScentMemorySystem:
         neighbors = self._get_orthogonal_neighbors(pos)
         return {
             "breeze": any(neighbor in pits for neighbor in neighbors),
-            "stench": any(neighbor == wumpus_pos for neighbor in neighbors),
+            "stench": pos == wumpus_pos
+            or any(neighbor == wumpus_pos for neighbor in neighbors),
             "shine": pos == gold_pos or any(neighbor == gold_pos for neighbor in neighbors),
         }

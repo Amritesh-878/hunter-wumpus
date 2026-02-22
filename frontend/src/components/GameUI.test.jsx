@@ -21,6 +21,9 @@ describe('GameUI', () => {
     expect(screen.getByText('1 Arrow')).toBeInTheDocument();
     expect(screen.getByText('AIM MODE — SHOOT WITH WASD')).toBeInTheDocument();
     expect(screen.getByText('You feel a cold draft.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Arrows travel the entire corridor.'),
+    ).toBeInTheDocument();
   });
 
   it('disables aim button with no arrows', () => {

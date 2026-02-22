@@ -44,16 +44,67 @@ class GameEngine:
                 positions.append(Position(x=x, y=y))
         return positions
 
+    def _manhattan_distance(self, pos_a: Position, pos_b: Position) -> int:
+        return abs(pos_a.x - pos_b.x) + abs(pos_a.y - pos_b.y)
+
+    def _sample_with_distance_fallback(
+        self,
+        available_positions: list[Position],
+        *,
+        count: int,
+        origin: Position,
+        preferred_min_distance: int,
+        fallback_min_distance: int,
+    ) -> list[Position]:
+        for min_distance in range(preferred_min_distance, fallback_min_distance - 1, -1):
+            candidates = [
+                position
+                for position in available_positions
+                if self._manhattan_distance(origin, position) >= min_distance
+            ]
+            if len(candidates) >= count:
+                return random.sample(candidates, count)
+
+        fallback_candidates = [
+            position
+            for position in available_positions
+            if self._manhattan_distance(origin, position) >= fallback_min_distance
+        ]
+        if len(fallback_candidates) >= count:
+            return random.sample(fallback_candidates, count)
+
+        return random.sample(available_positions, count)
+
     def _reset_board(self) -> None:
         self.player_pos = Position(0, 0)
         self.status = "Ongoing"
 
         available_positions = self._all_non_start_positions()
-        selected_positions = random.sample(available_positions, 2 + self.num_pits)
+        self.wumpus_pos = self._sample_with_distance_fallback(
+            available_positions,
+            count=1,
+            origin=self.player_pos,
+            preferred_min_distance=3,
+            fallback_min_distance=2,
+        )[0]
+        available_positions.remove(self.wumpus_pos)
 
-        self.wumpus_pos = selected_positions[0]
-        self.gold_pos = selected_positions[1]
-        self.pits = selected_positions[2:]
+        self.gold_pos = self._sample_with_distance_fallback(
+            available_positions,
+            count=1,
+            origin=self.player_pos,
+            preferred_min_distance=2,
+            fallback_min_distance=1,
+        )[0]
+        available_positions.remove(self.gold_pos)
+
+        self.pits = self._sample_with_distance_fallback(
+            available_positions,
+            count=self.num_pits,
+            origin=self.player_pos,
+            preferred_min_distance=1,
+            fallback_min_distance=1,
+        )
         self._scent_memory = ScentMemorySystem(size=self.size, wumpus_start=self.wumpus_pos)
 
     def _clamp_position(self, position: Position) -> Position:

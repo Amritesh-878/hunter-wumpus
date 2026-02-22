@@ -7,6 +7,10 @@ import pytest
 from engine.game_state import GameEngine
 
 
+def _manhattan_distance(x: int, y: int) -> int:
+    return abs(x) + abs(y)
+
+
 @pytest.fixture
 def engine() -> Generator[GameEngine, None, None]:
     yield GameEngine(size=4, num_pits=3)
@@ -18,6 +22,14 @@ def test_safe_spawn() -> None:
         assert game_engine.wumpus_pos != game_engine.player_pos
         assert game_engine.gold_pos != game_engine.player_pos
         assert game_engine.player_pos not in game_engine.pits
+        assert _manhattan_distance(game_engine.wumpus_pos.x, game_engine.wumpus_pos.y) >= 3
+        assert _manhattan_distance(game_engine.gold_pos.x, game_engine.gold_pos.y) >= 2
+
+
+def test_wumpus_spawn_distance_fallback_for_tiny_grid() -> None:
+    for _ in range(100):
+        game_engine = GameEngine(size=2, num_pits=0)
+        assert _manhattan_distance(game_engine.wumpus_pos.x, game_engine.wumpus_pos.y) >= 2
 
 
 def test_entity_counts(engine: GameEngine) -> None:

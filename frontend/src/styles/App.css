@@ -30,7 +30,7 @@ body {
 }
 
 .app__titlebar {
-  width: min(1100px, 100%);
+  width: min(1360px, 100%);
   display: grid;
   gap: 0.55rem;
   text-align: center;
@@ -59,9 +59,9 @@ body {
 }
 
 .app__content {
-  width: min(1100px, 100%);
+  width: min(1360px, 100%);
   display: grid;
-  grid-template-columns: auto minmax(300px, 350px);
+  grid-template-columns: auto minmax(360px, 420px);
   gap: 1.5rem;
   align-items: center;
   justify-content: center;
@@ -220,9 +220,24 @@ body {
   border: 1px solid #2a2840;
   border-radius: 6px;
   background: #0b0a12;
-  padding: 0.6rem;
-  max-height: 80px;
+  padding: 0.8rem;
+  max-height: 130px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2b2940 #161522;
+}
+
+.game-ui__log::-webkit-scrollbar {
+  width: 6px;
+}
+
+.game-ui__log::-webkit-scrollbar-track {
+  background: #161522;
+}
+
+.game-ui__log::-webkit-scrollbar-thumb {
+  background: #2b2940;
+  border-radius: 3px;
 }
 
 .game-ui__message {
@@ -232,6 +247,7 @@ body {
   font-size: 0.875rem;
   line-height: 1.5;
   font-family: 'IM Fell English', Georgia, serif;
+  padding: 0.22rem 0.3rem;
 }
 
 .game-ui__message + .game-ui__message {
@@ -286,7 +302,7 @@ kbd {
 }
 
 .app__error {
-  width: min(1100px, 100%);
+  width: min(1360px, 100%);
   margin: 0;
   border: 1px solid #6f2828;
   border-radius: 6px;

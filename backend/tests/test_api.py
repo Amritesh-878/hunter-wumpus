@@ -139,3 +139,53 @@ def test_status_unknown_game_returns_404() -> None:
 
     assert status_response.status_code == 404
     assert status_response.json() == {"detail": "Game not found."}
+
+
+def test_move_reports_premove_stench_when_wumpus_kills_player(monkeypatch: Any) -> None:
+    _sessions.clear()
+    client = TestClient(app)
+    monkeypatch.setattr("api.routes._get_agent", lambda: StubAgent())
+
+    start_payload = _start_game(client)
+    game_id = start_payload["game_id"]
+    session = _sessions[game_id]
+    session.engine.player_pos = Position(x=0, y=0)
+    session.engine.wumpus_pos = Position(x=2, y=0)
+    session.engine.pits = [Position(x=5, y=5)]
+    session.engine.gold_pos = Position(x=5, y=4)
+
+    response = client.post(
+        "/game/move",
+        json={"game_id": game_id, "player_action": "EAST"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "PlayerLost_Wumpus"
+    assert payload["message"] == "The stench was overwhelming — the Wumpus was upon you."
+    assert payload["senses"]["stench"] is True
+
+
+def test_shoot_miss_mentions_full_corridor_direction(monkeypatch: Any) -> None:
+    _sessions.clear()
+    client = TestClient(app)
+    monkeypatch.setattr("api.routes._get_agent", lambda: StubAgent())
+
+    start_payload = _start_game(client)
+    game_id = start_payload["game_id"]
+    session = _sessions[game_id]
+    session.engine.player_pos = Position(x=0, y=0)
+    session.engine.wumpus_pos = Position(x=5, y=5)
+    session.engine.pits = [Position(x=4, y=4)]
+    session.engine.gold_pos = Position(x=5, y=4)
+
+    response = client.post(
+        "/game/move",
+        json={"game_id": game_id, "player_action": "SHOOT_EAST"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["message"].startswith(
+        "Your arrow flies EAST through the corridor but finds nothing."
+    )

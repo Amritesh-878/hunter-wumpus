@@ -102,6 +102,8 @@ export default function GameUI({
           <span>Aim / Cancel</span>
           <kbd>Aim + WASD</kbd>
           <span>Shoot</span>
+          <kbd>Arrows</kbd>
+          <span>Arrows travel the entire corridor.</span>
         </div>
       </div>
     </section>

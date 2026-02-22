@@ -101,6 +101,16 @@ def _action_to_direction(action: ActionType) -> tuple[Direction, bool]:
     return Direction.WEST, True
 
 
+def _direction_label(direction: Direction) -> str:
+    if direction == Direction.NORTH:
+        return "NORTH"
+    if direction == Direction.SOUTH:
+        return "SOUTH"
+    if direction == Direction.EAST:
+        return "EAST"
+    return "WEST"
+
+
 def _arrow_hits_wumpus(engine: GameEngine, direction: Direction) -> bool:
     player = engine.player_pos
     wumpus = engine.wumpus_pos
@@ -122,8 +132,12 @@ def _observation_state(engine: GameEngine) -> dict[str, object]:
     }
 
 
-def _build_response(game_id: str, session: SessionState) -> GameStateResponse:
-    senses = session.engine.get_senses(session.engine.player_pos)
+def _build_response(
+    game_id: str,
+    session: SessionState,
+    senses_override: dict[str, bool] | None = None,
+) -> GameStateResponse:
+    senses = senses_override or session.engine.get_senses(session.engine.player_pos)
     return GameStateResponse(
         game_id=game_id,
         status=session.engine.status,
@@ -161,6 +175,8 @@ def move(request: MoveRequest) -> GameStateResponse:
 
     direction, is_shoot = _action_to_direction(request.player_action)
     session.turn += 1
+    pre_wumpus_senses: dict[str, bool] | None = None
+    response_senses_override: dict[str, bool] | None = None
 
     if is_shoot:
         if session.arrows_remaining == 0:
@@ -171,15 +187,20 @@ def move(request: MoveRequest) -> GameStateResponse:
             session.message = "Your arrow finds its mark. The Wumpus is dead."
         else:
             session.engine.status = session.engine.check_game_over()
-            session.message = "Your arrow disappears into the darkness. You have no more."
+            session.message = (
+                f"Your arrow flies {_direction_label(direction)} through "
+                "the corridor but finds nothing."
+            )
     else:
         session.engine.move_player(direction)
         _add_explored(session)
         session.engine.status = session.engine.check_game_over()
         session.message = _status_message(session.engine.status)
+        if session.engine.status == "Ongoing":
+            pre_wumpus_senses = session.engine.get_senses(session.engine.player_pos)
 
     if session.engine.status != "Ongoing":
-        return _build_response(request.game_id, session)
+        return _build_response(request.game_id, session, response_senses_override)
 
     agent = _get_agent()
     obs = agent.build_observation(_observation_state(session.engine))
@@ -189,11 +210,25 @@ def move(request: MoveRequest) -> GameStateResponse:
     session.engine._update_scent()
 
     if session.engine.status == "Ongoing":
-        session.message = _sense_message(session.engine.get_senses(session.engine.player_pos))
+        current_senses = session.engine.get_senses(session.engine.player_pos)
+        if is_shoot:
+            sense_message = _sense_message(current_senses)
+            if sense_message:
+                session.message = f"{session.message} {sense_message}"
+        else:
+            session.message = _sense_message(current_senses)
     else:
-        session.message = _status_message(session.engine.status)
+        if (
+            session.engine.status == "PlayerLost_Wumpus"
+            and pre_wumpus_senses is not None
+            and pre_wumpus_senses["stench"]
+        ):
+            session.message = "The stench was overwhelming — the Wumpus was upon you."
+            response_senses_override = pre_wumpus_senses
+        else:
+            session.message = _status_message(session.engine.status)
 
-    return _build_response(request.game_id, session)
+    return _build_response(request.game_id, session, response_senses_override)
 
 
 @router.get("/game/{game_id}/status", response_model=GameStateResponse)

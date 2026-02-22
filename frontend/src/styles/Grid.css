@@ -1,7 +1,7 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(var(--grid-size), min(5vw, 56px));
-  grid-template-rows: repeat(var(--grid-size), min(5vw, 56px));
+  grid-template-columns: repeat(var(--grid-size), min(6.2vw, 70px));
+  grid-template-rows: repeat(var(--grid-size), min(6.2vw, 70px));
   width: fit-content;
   gap: 0;
   border: 2px solid #2a2840;
@@ -12,7 +12,7 @@
 
 @media (max-width: 700px) {
   .grid {
-    grid-template-columns: repeat(var(--grid-size), min(8vw, 56px));
-    grid-template-rows: repeat(var(--grid-size), min(8vw, 56px));
+    grid-template-columns: repeat(var(--grid-size), min(9vw, 70px));
+    grid-template-rows: repeat(var(--grid-size), min(9vw, 70px));
   }
 }

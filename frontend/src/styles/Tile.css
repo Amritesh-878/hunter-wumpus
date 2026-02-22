@@ -35,8 +35,8 @@
 .tile--sense-shine::after {
   content: '';
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   opacity: 0.88;
   z-index: 4;
   border-radius: 4px;
@@ -69,8 +69,8 @@
 }
 
 .tile [data-entity='player'] {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   z-index: 3;
 }
 
@@ -78,8 +78,8 @@
 .tile [data-entity='gold'],
 .tile [data-entity='wumpus'] {
   position: absolute;
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   z-index: 2;
 }
 
@@ -104,8 +104,8 @@
 .tile [data-sense='stench'],
 .tile [data-sense='shine'] {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   z-index: 5;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
 }

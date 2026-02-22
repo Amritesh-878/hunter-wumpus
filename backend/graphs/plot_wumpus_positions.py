@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import cast
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import seaborn as sns
 from stable_baselines3 import PPO
 
@@ -20,7 +22,7 @@ MODELS_DIR = resolve_models_dir()
 MODEL_PATH = MODELS_DIR / "hunter_wumpus_model"
 
 
-def collect_final_positions(num_episodes: int = 500, size: int = 4) -> np.ndarray:
+def collect_final_positions(num_episodes: int = 500, size: int = 4) -> npt.NDArray[np.int_]:
     model = PPO.load(str(MODEL_PATH))
     env = HunterWumpusEnv(size=size)
     heat = np.zeros((size, size), dtype=int)
@@ -38,7 +40,7 @@ def collect_final_positions(num_episodes: int = 500, size: int = 4) -> np.ndarra
         heat[wumpus_pos.y, wumpus_pos.x] += 1
 
     env.close()
-    return heat
+    return cast(npt.NDArray[np.int_], heat)
 
 
 def main() -> None:
