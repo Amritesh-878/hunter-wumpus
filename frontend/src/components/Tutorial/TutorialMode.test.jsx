@@ -1,43 +1,59 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import TutorialMode from './TutorialMode';
 
-function getActiveStepTitle() {
-  const activeNode = document.querySelector('.tutorial-step--active .tutorial-step__title');
-  return activeNode?.textContent;
+function dismissPopup(label = 'Got it →') {
+  fireEvent.click(screen.getByRole('button', { name: label }));
 }
 
 describe('TutorialMode', () => {
-  it('progresses through core tutorial steps and enables start game on completion', () => {
+  it('runs the modal-based tutorial flow and completes into real game handoff', () => {
     const onComplete = vi.fn();
 
     render(<TutorialMode onComplete={onComplete} />);
 
-    expect(getActiveStepTitle()).toBe('Step 1 — Movement');
+    expect(screen.getByText('The Hunt Begins')).toBeInTheDocument();
 
     fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
-    expect(getActiveStepTitle()).toBe('Step 2 — Breeze Warning');
+    expect(screen.getByText('The Hunt Begins')).toBeInTheDocument();
 
-    fireEvent.keyDown(window, { code: 'ArrowRight', key: 'ArrowRight' });
-    expect(getActiveStepTitle()).toBe('Step 3 — Stench Warning');
+    dismissPopup();
+    expect(screen.getByText('How to Move')).toBeInTheDocument();
 
+    dismissPopup();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    expect(screen.getByText('A Cold Draft')).toBeInTheDocument();
+
+    dismissPopup();
+
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    expect(screen.getByText('Something Foul')).toBeInTheDocument();
+
+    dismissPopup();
     fireEvent.keyDown(window, { code: 'KeyE', key: 'e' });
-    expect(getActiveStepTitle()).toBe('Step 4 — Shooting');
+    expect(screen.getByText('— AIM MODE —')).toBeInTheDocument();
 
-    fireEvent.keyDown(window, { code: 'ArrowDown', key: 'ArrowDown' });
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
+    expect(screen.getByText('The Wumpus is Dead')).toBeInTheDocument();
 
-    expect(getActiveStepTitle()).toBe('Step 5 — Shine & Gold');
-    expect(screen.getByText(/The Wumpus is dead. Now find the gold./i)).toBeInTheDocument();
+    dismissPopup();
 
-    fireEvent.keyDown(window, { code: 'ArrowDown', key: 'ArrowDown' });
-    fireEvent.keyDown(window, { code: 'ArrowDown', key: 'ArrowDown' });
-    fireEvent.keyDown(window, { code: 'ArrowLeft', key: 'ArrowLeft' });
-    fireEvent.keyDown(window, { code: 'ArrowDown', key: 'ArrowDown' });
-    expect(getActiveStepTitle()).toBe('Step 6 — Completion');
+    fireEvent.keyDown(window, { code: 'KeyA', key: 'a' });
+    expect(screen.getByText('A Golden Glimmer')).toBeInTheDocument();
 
-    const startGameButton = screen.getByRole('button', { name: 'Start Game' });
-    fireEvent.click(startGameButton);
+    dismissPopup();
 
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    expect(screen.getByText('You Survived')).toBeInTheDocument();
+
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Start Real Game →',
+      }),
+    );
     expect(onComplete).toHaveBeenCalledTimes(1);
   });
 });

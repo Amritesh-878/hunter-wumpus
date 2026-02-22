@@ -67,6 +67,11 @@ body {
   justify-content: center;
 }
 
+.app__content--menu {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
 .app__right-panel {
   width: 100%;
 }
@@ -89,8 +94,15 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.16rem;
   color: #e2a04a;
-  font-family: 'IM Fell English', Georgia, serif;
+  font-family: 'Cinzel', serif;
   font-size: 0.85rem;
+}
+
+.menu-panel .btn-start,
+.menu-panel .btn-aim {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.06rem;
+  text-transform: uppercase;
 }
 
 .menu-panel__tutorial-btn {

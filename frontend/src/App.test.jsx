@@ -158,8 +158,8 @@ describe('App game loop', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Tutorial' }));
 
-    expect(screen.getByText('Step 1 — Movement')).toBeInTheDocument();
-    expect(screen.getByText(/Use WASD or arrow keys to move/i)).toBeInTheDocument();
+    expect(screen.getByText('The Hunt Begins')).toBeInTheDocument();
+    expect(screen.getByText(/Your goal is to find the gold hidden somewhere/i)).toBeInTheDocument();
     expect(mockStartGame).not.toHaveBeenCalled();
   });
 });

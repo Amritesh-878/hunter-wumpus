@@ -45,7 +45,7 @@ function GameShell() {
         <div className='app__title-divider' aria-hidden='true' />
       </header>
 
-      <section className='app__content'>
+      <section className={`app__content${appMode === 'menu' ? ' app__content--menu' : ''}`}>
         {appMode === 'menu' ? (
           <section className='menu-panel' aria-label='Main menu'>
             <p className='menu-panel__subtitle'>Choose your path</p>
