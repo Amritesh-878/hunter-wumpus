@@ -65,8 +65,8 @@
 }
 
 .tile [data-entity='player'] {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 62%;
+  height: 62%;
   z-index: 3;
 }
 
@@ -74,8 +74,8 @@
 .tile [data-entity='gold'],
 .tile [data-entity='wumpus'] {
   position: absolute;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 58%;
+  height: 58%;
   z-index: 2;
 }
 
@@ -120,4 +120,3 @@
   top: 2px;
   right: 2px;
 }
-

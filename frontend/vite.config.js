@@ -5,7 +5,7 @@ export default defineConfig(({ command }) => ({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    allowedHosts: ['oklahoma-trainers-carriers-favorites.trycloudflare.com'],
+    allowedHosts: ['percentage-logan-stops-ste.trycloudflare.com'],
   },
   test: {
     globals: true,

@@ -1,4 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Player">
-  <circle cx="32" cy="16" r="10" fill="#f4f6f8" />
-  <path d="M18 54c0-10 6-18 14-18s14 8 14 18" fill="none" stroke="#f4f6f8" stroke-width="8" stroke-linecap="round" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="400" height="400">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <g id="backpack">
+    <rect x="115" y="90" width="30" height="45" rx="8" fill="#4a3018"/>
+    <rect x="135" y="100" width="15" height="25" rx="4" fill="#3a2311"/>
+  </g>
+
+  <g id="bow">
+    <path d="M 50 85 Q 25 135 50 185" fill="none" stroke="#5c4033" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="85" x2="50" y2="185" stroke="#e0e0e0" stroke-width="1.5"/>
+  </g>
+
+  <g id="torch-base">
+    <rect x="138" y="105" width="8" height="45" rx="3" fill="#4a3018"/>
+  </g>
+
+  <g id="legs">
+    <rect x="75" y="140" width="22" height="40" rx="2" fill="#5c4033"/>
+    <path d="M 70 175 h 27 v 10 a 5 5 0 0 1 -5 5 h -17 a 5 5 0 0 1 -5 -5 z" fill="#2b1d14"/>
+    <rect x="103" y="140" width="22" height="40" rx="2" fill="#5c4033"/>
+    <path d="M 103 175 h 27 v 10 a 5 5 0 0 1 -5 5 h -17 a 5 5 0 0 1 -5 -5 z" fill="#2b1d14"/>
+  </g>
+
+  <g id="torso">
+    <rect x="70" y="90" width="60" height="50" rx="12" fill="#8b9b6f"/>
+    <path d="M 75 90 L 120 135" stroke="#4a3018" stroke-width="6" stroke-linecap="round"/>
+    <rect x="70" y="132" width="60" height="10" fill="#3a2311"/>
+    <rect x="92" y="129" width="16" height="16" rx="2" fill="none" stroke="#d4af37" stroke-width="3"/>
+  </g>
+
+  <g id="arms">
+    <rect x="52" y="95" width="16" height="40" rx="8" fill="#8b9b6f"/>
+    <circle cx="60" cy="135" r="8" fill="#f0cca7"/>
+    <rect x="134" y="95" width="16" height="40" rx="8" fill="#8b9b6f"/>
+    <circle cx="142" cy="135" r="8" fill="#f0cca7"/>
+  </g>
+
+  <g id="head">
+    <rect x="90" y="80" width="20" height="15" fill="#e0b894"/>
+    <circle cx="100" cy="65" r="22" fill="#f0cca7"/>
+    <circle cx="92" cy="63" r="3" fill="#222"/>
+    <circle cx="108" cy="63" r="3" fill="#222"/>
+  </g>
+
+  <g id="hat" filter="url(#shadow)">
+    <path d="M 80 55 C 80 15, 120 15, 120 55 Z" fill="#6b4423"/>
+    <ellipse cx="100" cy="55" rx="42" ry="9" fill="#8c5a2b"/>
+    <path d="M 78 52 Q 100 62 122 52" fill="none" stroke="#3a2311" stroke-width="4"/>
+  </g>
+
+  <g id="torch-flame">
+    <path d="M 142 105 C 126 105, 132 75, 142 65 C 152 75, 158 105, 142 105 Z" fill="#ff7700"/>
+    <path d="M 142 105 C 135 105, 138 88, 142 80 C 146 88, 149 105, 142 105 Z" fill="#ffcc00"/>
+  </g>
 </svg>
