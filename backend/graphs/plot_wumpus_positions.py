@@ -6,8 +6,8 @@ from typing import cast
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt
-import seaborn as sns
+import seaborn as sns  # type: ignore[import-untyped]
+from numpy.typing import NDArray
 from stable_baselines3 import PPO
 
 from common import resolve_models_dir
@@ -22,10 +22,10 @@ MODELS_DIR = resolve_models_dir()
 MODEL_PATH = MODELS_DIR / "hunter_wumpus_model"
 
 
-def collect_final_positions(num_episodes: int = 500, size: int = 4) -> npt.NDArray[np.int_]:
+def collect_final_positions(num_episodes: int = 500, size: int = 4) -> NDArray[np.int_]:
     model = PPO.load(str(MODEL_PATH))
     env = HunterWumpusEnv(size=size)
-    heat = np.zeros((size, size), dtype=int)
+    heat = np.zeros((size, size), dtype=np.int_)
 
     for _ in range(num_episodes):
         obs, _ = env.reset()
@@ -40,7 +40,7 @@ def collect_final_positions(num_episodes: int = 500, size: int = 4) -> npt.NDArr
         heat[wumpus_pos.y, wumpus_pos.x] += 1
 
     env.close()
-    return cast(npt.NDArray[np.int_], heat)
+    return cast(NDArray[np.int_], heat)
 
 
 def main() -> None:

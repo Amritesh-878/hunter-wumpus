@@ -152,4 +152,14 @@ describe('App game loop', () => {
     expect(screen.getByText('Turn #0')).toBeInTheDocument();
     expect(mockStartGame).toHaveBeenCalledTimes(3);
   });
+
+  it('opens tutorial mode from menu', () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tutorial' }));
+
+    expect(screen.getByText('Step 1 — Movement')).toBeInTheDocument();
+    expect(screen.getByText(/Use WASD or arrow keys to move/i)).toBeInTheDocument();
+    expect(mockStartGame).not.toHaveBeenCalled();
+  });
 });

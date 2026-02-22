@@ -6,7 +6,7 @@ from typing import cast
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt
+from numpy.typing import NDArray
 
 from common import resolve_models_dir
 
@@ -19,11 +19,12 @@ MODEL_PATH = MODELS_DIR / "hunter_wumpus_model"
 EVAL_PATH = MODELS_DIR / "evaluations.npz"
 
 
-def rolling_mean(values: npt.NDArray[np.float64], window: int = 10) -> npt.NDArray[np.float64]:
+def rolling_mean(values: NDArray[np.float64], window: int = 10) -> NDArray[np.float64]:
     if len(values) < window:
         return values
     kernel = np.ones(window, dtype=float) / float(window)
-    return cast(npt.NDArray[np.float64], np.convolve(values, kernel, mode="valid"))
+    convolved = np.convolve(values, kernel, mode="valid")
+    return cast(NDArray[np.float64], convolved)
 
 
 def main() -> None:

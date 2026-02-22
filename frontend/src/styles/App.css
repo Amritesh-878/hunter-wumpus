@@ -71,6 +71,32 @@ body {
   width: 100%;
 }
 
+.menu-panel {
+  width: min(520px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: #0f0e18;
+  border: 1px solid #2a2840;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.65);
+  color: #d9cfba;
+}
+
+.menu-panel__subtitle {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16rem;
+  color: #e2a04a;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 0.85rem;
+}
+
+.menu-panel__tutorial-btn {
+  width: 100%;
+}
+
 .game-ui {
   height: 100%;
   display: flex;
@@ -336,6 +362,10 @@ kbd {
   }
 
   .app__right-panel {
+    width: min(560px, 100%);
+  }
+
+  .menu-panel {
     width: min(560px, 100%);
   }
 }

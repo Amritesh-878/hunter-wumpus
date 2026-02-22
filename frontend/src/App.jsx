@@ -1,8 +1,11 @@
+import { useState } from 'react';
+
 import { startGame as startGameRequest } from './api/gameService';
 import GameOverModal from './components/GameOverModal';
 import GameUI from './components/GameUI';
 import Grid from './components/Grid';
 import LoadingOverlay from './components/LoadingOverlay';
+import TutorialMode from './components/Tutorial/TutorialMode';
 import { useControls } from './hooks/useControls';
 import { GameProvider, useGame } from './store/GameContext';
 import './styles/App.css';
@@ -10,6 +13,7 @@ import './styles/App.css';
 function GameShell() {
   const { state, dispatch } = useGame();
   const { isAiming, toggleAim } = useControls();
+  const [appMode, setAppMode] = useState('menu');
 
   const runStartGame = async (resetBeforeRequest) => {
     if (resetBeforeRequest) dispatch({ type: 'RESET_STATE' });
@@ -25,6 +29,11 @@ function GameShell() {
     }
   };
 
+  const startRealGame = async () => {
+    setAppMode('playing');
+    await runStartGame(true);
+  };
+
   const isGameOver = ['PlayerWon', 'WumpusKilled', 'PlayerLost_Pit', 'PlayerLost_Wumpus'].includes(
     state.status,
   );
@@ -37,25 +46,63 @@ function GameShell() {
       </header>
 
       <section className='app__content'>
-        <Grid
-          gridSize={state.gridSize}
-          playerPos={state.playerPos}
-          exploredTiles={state.exploredTiles}
-          senses={state.senses}
-          status={state.status}
-        />
-        <aside className='app__right-panel'>
-          <GameUI
-            arrowsRemaining={state.arrowsRemaining}
-            isAiming={isAiming}
-            isLoading={state.isLoading}
-            message={state.message}
-            status={state.status}
-            turn={state.turn}
-            onStartGame={() => runStartGame(true)}
-            onToggleAim={toggleAim}
+        {appMode === 'menu' ? (
+          <section className='menu-panel' aria-label='Main menu'>
+            <p className='menu-panel__subtitle'>Choose your path</p>
+            <button
+              type='button'
+              className='btn-start'
+              onClick={() => {
+                void startRealGame();
+              }}
+              disabled={state.isLoading}
+            >
+              Start Game
+            </button>
+            <button
+              type='button'
+              className='btn-aim menu-panel__tutorial-btn'
+              onClick={() => {
+                setAppMode('tutorial');
+              }}
+              disabled={state.isLoading}
+            >
+              Tutorial
+            </button>
+          </section>
+        ) : null}
+
+        {appMode === 'tutorial' ? (
+          <TutorialMode
+            onComplete={() => {
+              void startRealGame();
+            }}
           />
-        </aside>
+        ) : null}
+
+        {appMode === 'playing' ? (
+          <>
+            <Grid
+              gridSize={state.gridSize}
+              playerPos={state.playerPos}
+              exploredTiles={state.exploredTiles}
+              senses={state.senses}
+              status={state.status}
+            />
+            <aside className='app__right-panel'>
+              <GameUI
+                arrowsRemaining={state.arrowsRemaining}
+                isAiming={isAiming}
+                isLoading={state.isLoading}
+                message={state.message}
+                status={state.status}
+                turn={state.turn}
+                onStartGame={() => runStartGame(true)}
+                onToggleAim={toggleAim}
+              />
+            </aside>
+          </>
+        ) : null}
       </section>
       {state.error ? (
         <p role='alert' className='app__error'>
@@ -63,7 +110,7 @@ function GameShell() {
         </p>
       ) : null}
       {state.isLoading ? <LoadingOverlay /> : null}
-      {isGameOver ? (
+      {appMode === 'playing' && isGameOver ? (
         <GameOverModal
           status={state.status}
           isLoading={state.isLoading}
