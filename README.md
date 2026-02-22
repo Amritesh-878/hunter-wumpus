@@ -15,18 +15,31 @@ Hunt the Wumpus is a full-stack adversarial dungeon game where the player naviga
 
 The frontend React application communicates with a FastAPI backend over REST. The backend orchestrates game state transitions via the engine and uses a PPO-based Wumpus agent for enemy behavior.
 
-```text
-┌─────────────────────────────────────────────────────┐
-│                  Browser (React + Vite)             │
-│  Grid ─ Tile ─ GameUI ─ GameOverModal ─ useControls │
-└──────────────────────┬──────────────────────────────┘
-                       │ HTTP REST (JSON)
-                       ▼
-┌─────────────────────────────────────────────────────┐
-│               FastAPI Backend (Python)              │
-│  /game/start  ─  /game/move  ─  GameEngine          │
-│                              └─  WumpusAgent (PPO)  │
-└─────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Browser[Browser (React + Vite)]
+        Grid[Grid]
+        Tile[Tile]
+        GameUI[GameUI]
+        GameOverModal[GameOverModal]
+        Controls[useControls]
+        Grid --> Tile
+        Tile --> GameUI
+        GameUI --> GameOverModal
+        GameOverModal --> Controls
+    end
+
+    subgraph Backend[FastAPI Backend (Python)]
+        Start[/game/start]
+        Move[/game/move]
+        Engine[GameEngine]
+        Agent[WumpusAgent (PPO)]
+        Start --> Engine
+        Move --> Engine
+        Engine --> Agent
+    end
+
+    Browser -->|HTTP REST (JSON)| Backend
 ```
 
 ## Prerequisites

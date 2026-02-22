@@ -123,116 +123,144 @@ Training hyperparameters (SB3 defaults used):
 
 ### 5.1 Overall Architecture ASCII Diagram
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│                       USER BROWSER                              │
-│                                                                 │
-│  ┌─────────────────┐        ┌──────────────────────────────┐    │
-│  │   React UI      │        │      Game State (Redux-like) │    │
-│  │  ┌───────────┐  │        │  status / playerPos / senses │    │
-│  │  │   Grid    │  │◄──────►│  exploredTiles / turn        │    │
-│  │  │   Tiles   │  │        │  arrowsRemaining / message   │    │
-│  │  └───────────┘  │        └──────────────────────────────┘    │
-│  │  ┌───────────┐  │                      │                     │
-│  │  │  GameUI   │  │               useControls                  │
-│  │  │  HUD/Log  │  │              (WASD / Space)                │
-│  │  └───────────┘  │                      │                     │
-│  └────────┬────────┘                      │                     │
-└───────────┼───────────────────────────────┼─────────────────────┘
-            │         HTTP REST             │
-            │  POST /game/start             │ POST /game/move
-            ▼                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      FASTAPI BACKEND                            │
-│  ┌──────────────────────┐    ┌─────────────────────────────┐    │
-│  │    Session Store     │    │        GameEngine           │    │
-│  │  (in-memory dict)    │    │  move_player / move_wumpus  │    │
-│  └──────────────────────┘    │  check_game_over            │    │
-│                              │  get_senses                 │    │
-│  ┌──────────────────────┐    └──────────────┬──────────────┘    │
-│  │    WumpusAgent       │◄──────────────────┘                   │
-│  │  PPO.load(model.zip) │    ┌─────────────────────────────┐    │
-│  │  build_observation() │    │   ScentMemorySystem         │    │
-│  │  get_wumpus_action() │    │   (scent_grid, decay)       │    │
-│  └──────────────────────┘    └─────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
-            │
-            │ loads
-            ▼
-┌──────────────────────────────┐
-│   models/hunter_wumpus_model │
-│   (PPO, Stable-Baselines3)   │
-└──────────────────────────────┘
+```mermaid
+graph LR
+    subgraph F[Frontend]
+        App[React App]
+        Store[GameContext + gameReducer]
+        View[Grid, Tile, GameUI, Modals]
+        Controls[useControls]
+        Controls --> App
+        App <--> Store
+        App --> View
+    end
+
+    subgraph A[FastAPI Routes]
+        Start[POST /game/start]
+        Move[POST /game/move]
+        Status[GET /game/game_id/status]
+    end
+
+    subgraph C[Backend Core]
+        Sessions[SessionState store]
+        Engine[GameEngine]
+        Agent[WumpusAgent]
+        Scent[ScentMemorySystem]
+        Sessions --> Engine
+        Engine --> Scent
+    end
+
+    Model[(PPO model file)] --> Agent
+
+    App --> Start
+    App --> Move
+    App --> Status
+
+    Start --> Sessions
+    Move --> Sessions
+    Status --> Sessions
+    Move --> Agent
+    Agent --> Engine
+
+    Start --> App
+    Move --> App
+    Status --> App
 ```
 
 ### 5.2 Component Relationships Diagram (UML-style ASCII)
 
-```text
-GameContext ─┬──► gameReducer ──► GameState
-             │         │
-             │         ▼
-             │    { status, playerPos, senses,
-             │      exploredTiles, turn,
-             │      arrowsRemaining, message }
-             │
-App.jsx ─────┼──► Grid ────────► Tile (×100)
-             │       (memo)        (memo)
-             ├──► GameUI
-             ├──► GameOverModal
-             └──► LoadingOverlay
+```mermaid
+graph TD
+    Provider[GameProvider] --> Context[GameContext]
+    Context --> App[App.jsx]
+
+    App --> Grid[Grid memoized]
+    Grid --> Tile[Tile memoized]
+    App --> HUD[GameUI]
+    App --> Over[GameOverModal]
+    App --> Load[LoadingOverlay]
+
+    App -->|dispatch action| Reducer[gameReducer]
+    Reducer --> State[GameState\nstatus, playerPos, senses\nexploredTiles, turn\narrowsRemaining, message]
+    State --> Context
+
+    State --> Grid
+    State --> HUD
+    State --> Over
 ```
 
 ### 5.3 Entity Relationship Diagram (ERD — ASCII)
 
-```text
-GameSession
-  ├── game_id (PK, UUID)
-  ├── turn (int)
-  ├── arrows_remaining (int)
-  ├── message (str)
-  └── engine ──── GameEngine
-                    ├── size (int)
-                    ├── status (GameStatus)
-                    ├── player_pos ──── Position(x, y)
-                    ├── wumpus_pos ──── Position(x, y)
-                    ├── gold_pos ────── Position(x, y)
-                    ├── pits ─────────── [Position(x, y), ...]
-                    └── scent_system ── ScentMemorySystem
-                                          ├── scent_grid (size×size int matrix)
-                                          └── wumpus_visited (set of positions)
+```mermaid
+erDiagram
+    SESSION_STATE {
+        UUID game_id PK
+        int turn
+        int arrows_remaining
+        string explored_tiles
+        string explored_set
+        string message
+    }
+
+    GAME_ENGINE {
+        int size
+        int num_pits
+        string status
+    }
+
+    PLAYER_POS {
+        int x
+        int y
+    }
+
+    WUMPUS_POS {
+        int x
+        int y
+    }
+
+    GOLD_POS {
+        int x
+        int y
+    }
+
+    PIT_POS {
+        int x
+        int y
+    }
+
+    SCENT_MEMORY_SYSTEM {
+        string scent_grid_matrix
+        string wumpus_visited_set
+        string pending_player_trail
+    }
+
+    SESSION_STATE ||--|| GAME_ENGINE : engine
+    GAME_ENGINE ||--|| PLAYER_POS : player_pos
+    GAME_ENGINE ||--|| WUMPUS_POS : wumpus_pos
+    GAME_ENGINE ||--|| GOLD_POS : gold_pos
+    GAME_ENGINE ||--o{ PIT_POS : pits
+    GAME_ENGINE ||--|| SCENT_MEMORY_SYSTEM : scent_system
 ```
 
 ### 5.4 Training Pipeline Diagram
 
-```text
-┌─────────────────────────────┐
-│   HunterWumpusEnv (4×4)     │◄──────
-│   (Gymnasium Wrapper)       │      │
-│                             │  reset() / step()
-│   Observation: float32[9]   │      │
-│   Action: Discrete(4)       │      │
-└──────────────┬──────────────┘      │
-               │ obs, reward, done   │
-               ▼                     │
-┌─────────────────────────────┐      │
-│   PPO Agent (SB3)           │      │
-│   Policy: MlpPolicy         │      │
-│   Net: [64, 64] hidden      │ action
-│   Optimizer: Adam 3e-4      │──────┘
-└──────────────┬──────────────┘
-               │ every 2048 steps
-               ▼
-┌─────────────────────────────┐
-│   EvalCallback              │
-│   (eval every 10k steps)    │
-│   Saves best_model.zip      │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│   hunter_wumpus_model.zip   │
-│   (Final Saved Policy)      │
-└─────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant Env as HunterWumpusEnv (4x4)\nObservation: float32[9]\nAction: Discrete(4)
+    participant PPO as PPO Agent (SB3)\nPolicy: MlpPolicy\nNet: [64,64] / Adam 3e-4
+    participant Eval as EvalCallback\n(every 10k steps)
+    participant Model as hunter_wumpus_model.zip
+
+    loop Training rollout
+        Env->>PPO: obs
+        PPO->>Env: action
+        Env->>PPO: reward, done, info
+    end
+
+    PPO->>PPO: Update policy every 2048 steps
+    PPO->>Eval: Trigger periodic evaluation
+    Eval->>Model: Save best_model.zip checkpoint
+    PPO->>Model: Save final policy
 ```
 
 ## 6. Sensory and Memory System
