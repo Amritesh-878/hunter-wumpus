@@ -42,15 +42,17 @@ export default function GameUI({
     <section className={`game-ui ${isAiming ? 'ui--aiming' : ''}`}>
       <p className='game-ui__label'>Dungeon Log</p>
 
-      {isAiming ? <p className='game-ui__aim-warning'>AIM MODE</p> : null}
-
       <button
         type='button'
         className='btn-start'
         onClick={onStartGame}
         disabled={isLoading}
       >
-        {isLoading ? 'Starting...' : status === 'Ongoing' ? 'New Game' : 'Start Game'}
+        {isLoading
+          ? 'Starting...'
+          : status === 'Ongoing'
+            ? 'New Game'
+            : 'Start Game'}
       </button>
 
       <div className='hud-row game-ui__turn-row'>
@@ -83,7 +85,9 @@ export default function GameUI({
             </p>
           ))
         ) : (
-          <p className='game-ui__message game-ui__message--empty'>Awaiting signs in the dark...</p>
+          <p className='game-ui__message game-ui__message--empty'>
+            Awaiting signs in the dark...
+          </p>
         )}
       </section>
 

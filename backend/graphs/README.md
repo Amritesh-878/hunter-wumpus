@@ -1,4 +1,4 @@
-# Wumpus Agent Training Graphs
+2`# Wumpus Agent Training Graphs
 
 These scripts analyze and visualize the trained PPO Wumpus agent.
 
