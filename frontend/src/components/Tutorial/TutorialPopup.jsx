@@ -6,15 +6,24 @@ export default function TutorialPopup({
   title,
   body,
   onDismiss,
-  dismissLabel = 'Got it →',
+  dismissLabel,
+  icon,
 }) {
   return (
     <div className='modal-overlay' role='dialog' aria-modal='true'>
-      <div className='modal-box'>
-        <h2 className='tutorial-popup__title'>{title}</h2>
+      <div className='modal-box tutorial-popup__box'>
+        {icon ? (
+          <img
+            src={icon}
+            alt=''
+            className='tutorial-popup__icon'
+            aria-hidden='true'
+          />
+        ) : null}
+        <h2 className='modal-box__title--win'>{title}</h2>
         <p>{body}</p>
         <button type='button' className='play-again-btn' onClick={onDismiss}>
-          {dismissLabel}
+          {dismissLabel ?? 'Got it →'}
         </button>
       </div>
     </div>
@@ -26,4 +35,5 @@ TutorialPopup.propTypes = {
   body: PropTypes.string.isRequired,
   onDismiss: PropTypes.func.isRequired,
   dismissLabel: PropTypes.string,
+  icon: PropTypes.string,
 };

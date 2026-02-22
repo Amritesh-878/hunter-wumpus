@@ -1,3 +1,11 @@
-.tutorial-popup__title {
-  color: #e2a04a;
+.tutorial-popup__box {
+  width: min(580px, 95%);
+}
+
+.tutorial-popup__icon {
+  display: block;
+  margin: 0 auto 0.5rem;
+  width: 52px;
+  height: 52px;
+  opacity: 0.9;
 }

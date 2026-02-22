@@ -1,22 +1,29 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import TutorialPopup from './TutorialPopup';
+import stenchIcon from '../../assets/stench.svg';
 
 describe('TutorialPopup', () => {
   it('renders title/body and uses default dismiss label', () => {
     const onDismiss = vi.fn();
 
-    render(
+    const { container } = render(
       <TutorialPopup
         title='The Hunt Begins'
         body='Tutorial body copy.'
         onDismiss={onDismiss}
+        icon={stenchIcon}
       />,
     );
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('The Hunt Begins')).toBeInTheDocument();
     expect(screen.getByText('Tutorial body copy.')).toBeInTheDocument();
+    expect(container.querySelector('.tutorial-popup__box')).toBeInTheDocument();
+    expect(container.querySelector('.tutorial-popup__icon')).toHaveAttribute(
+      'src',
+      stenchIcon,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Got it →' }));
     expect(onDismiss).toHaveBeenCalledTimes(1);

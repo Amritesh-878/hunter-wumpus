@@ -13,6 +13,8 @@ describe('TutorialMode', () => {
     render(<TutorialMode onComplete={onComplete} />);
 
     expect(screen.getByText('The Hunt Begins')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Skip Tutorial' })).toBeInTheDocument();
+    expect(screen.getByText('Turn #0')).toBeInTheDocument();
 
     fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
     expect(screen.getByText('The Hunt Begins')).toBeInTheDocument();
@@ -41,7 +43,7 @@ describe('TutorialMode', () => {
 
     dismissPopup();
     fireEvent.keyDown(window, { code: 'Space', key: ' ' });
-    expect(screen.getByText('— AIM MODE —')).toBeInTheDocument();
+    expect(screen.getByText('AIM MODE — SHOOT WITH WASD')).toBeInTheDocument();
 
     fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
     expect(screen.getByText('The Wumpus is Dead')).toBeInTheDocument();
@@ -63,6 +65,16 @@ describe('TutorialMode', () => {
         name: 'Start Real Game →',
       }),
     );
+    expect(onComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips tutorial immediately from right panel button', () => {
+    const onComplete = vi.fn();
+
+    render(<TutorialMode onComplete={onComplete} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Skip Tutorial' }));
+
     expect(onComplete).toHaveBeenCalledTimes(1);
   });
 
