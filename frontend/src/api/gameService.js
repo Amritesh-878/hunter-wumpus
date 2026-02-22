@@ -1,4 +1,6 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+const _wqParam = new URLSearchParams(window.location.search).get('wq');
+const BASE_URL =
+  _wqParam ?? import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
 
 async function parseResponse(response) {
   if (response.ok) {
