@@ -124,143 +124,191 @@ Training hyperparameters (SB3 defaults used):
 ### 5.1 Overall Architecture ASCII Diagram
 
 ```mermaid
-graph LR
-    subgraph F[Frontend]
-        App[React App]
-        Store[GameContext + gameReducer]
-        View[Grid, Tile, GameUI, Modals]
-        Controls[useControls]
-        Controls --> App
-        App <--> Store
-        App --> View
+graph TD
+    %% Styling
+    classDef frontend fill:#61dafb,stroke:#333,stroke-width:2px,color:#000;
+    classDef backend fill:#059669,stroke:#333,stroke-width:2px,color:#fff;
+    classDef ai fill:#f59e0b,stroke:#333,stroke-width:2px,color:#000;
+    classDef storage fill:#6b7280,stroke:#333,stroke-width:2px,color:#fff;
+
+    subgraph Client [Frontend Layer - React & Vite]
+        UI[React User Interface]:::frontend
+        Store((Game Context<br>State)):::frontend
+        UI <-->|State Updates| Store
     end
 
-    subgraph A[FastAPI Routes]
-        Start[POST /game/start]
-        Move[POST /game/move]
-        Status[GET /game/game_id/status]
+    subgraph API [API Layer - FastAPI]
+        Router{REST API Router}:::backend
     end
 
-    subgraph C[Backend Core]
-        Sessions[SessionState store]
-        Engine[GameEngine]
-        Agent[WumpusAgent]
-        Scent[ScentMemorySystem]
-        Sessions --> Engine
-        Engine --> Scent
+    subgraph Server [Backend Core & Game Engine]
+        Session[(Session State Store)]:::storage
+        Engine[Deterministic Game Engine]:::backend
+        Memory[Scent Memory System]:::backend
     end
 
-    Model[(PPO model file)] --> Agent
+    subgraph RL [AI Agent Layer - Stable-Baselines3]
+        Agent{PPO Wumpus Agent}:::ai
+        Model[(Trained Model<br>best_model.zip)]:::storage
+    end
 
-    App --> Start
-    App --> Move
-    App --> Status
+    %% Network Connections
+    Store -->|POST move, GET status| Router
+    Router -->|JSON Responses| Store
 
-    Start --> Sessions
-    Move --> Sessions
-    Status --> Sessions
-    Move --> Agent
-    Agent --> Engine
+    %% Backend Logic Flow
+    Router -->|Validate and Route| Session
+    Session <-->|Retrieve or Update Board| Engine
+    Engine -->|Deposit and Decay Scent| Memory
 
-    Start --> App
-    Move --> App
-    Status --> App
+    %% AI Integration Flow
+    Engine -->|Provide 9D Observation| Agent
+    Agent -->|Load Policy Weights| Model
+    Memory -.->|Scent Gradients| Agent
+    Agent -->|Predict Action: N S E W| Engine
 ```
 
 ### 5.2 Component Relationships Diagram (UML-style ASCII)
 
 ```mermaid
 graph TD
-    Provider[GameProvider] --> Context[GameContext]
-    Context --> App[App.jsx]
+    %% Styling
+    classDef context fill:#8b5cf6,stroke:#333,stroke-width:2px,color:#fff;
+    classDef component fill:#3b82f6,stroke:#333,stroke-width:2px,color:#fff;
+    classDef logic fill:#ef4444,stroke:#333,stroke-width:2px,color:#fff;
 
-    App --> Grid[Grid memoized]
-    Grid --> Tile[Tile memoized]
-    App --> HUD[GameUI]
-    App --> Over[GameOverModal]
-    App --> Load[LoadingOverlay]
+    %% State Management block
+    subgraph State [State Management Flow]
+        Provider[GameProvider]:::context
+        Context((GameContext)):::context
+        Reducer{gameReducer}:::logic
+        GameState[(GameState<br>status, pos, scent<br>explored, turns)]:::context
+    end
 
-    App -->|dispatch action| Reducer[gameReducer]
-    Reducer --> State[GameState\nstatus, playerPos, senses\nexploredTiles, turn\narrowsRemaining, message]
-    State --> Context
+    %% UI Components block
+    subgraph UI [React Component Tree]
+        App[App.jsx]:::component
+        Grid[Grid Component<br>React.memo]:::component
+        Tile[Tile Component<br>React.memo]:::component
+        HUD[GameUI / HUD]:::component
+        Modals[GameOver / Loading Modals]:::component
+    end
 
-    State --> Grid
-    State --> HUD
-    State --> Over
+    %% Initialization and Context passing
+    Provider -->|Provides| Context
+    Context -->|Consumes| App
+
+    %% Render Tree
+    App -->|Renders| Grid
+    Grid -->|Renders 10x10| Tile
+    App -->|Renders| HUD
+    App -->|Renders| Modals
+
+    %% Unidirectional Data Flow
+    App -.->|Dispatch MOVE_UP etc| Reducer
+    Reducer -->|Computes New State| GameState
+    GameState -.->|Updates Values| Context
+
+    %% Visual dependencies
+    GameState -.->|Props and State| Grid
+    GameState -.->|Props and State| HUD
 ```
 
 ### 5.3 Entity Relationship Diagram (ERD — ASCII)
 
 ```mermaid
 erDiagram
+    %% Core State Management
     SESSION_STATE {
         UUID game_id PK
         int turn
         int arrows_remaining
         string explored_tiles
-        string explored_set
         string message
     }
 
+    %% Main Game Logic
     GAME_ENGINE {
         int size
         int num_pits
         string status
     }
 
-    PLAYER_POS {
+    %% Active Entities
+    PLAYER_ENTITY {
+        int x
+        int y
+        boolean has_gold
+    }
+
+    WUMPUS_AGENT {
+        int x
+        int y
+        boolean is_alive
+    }
+
+    %% Static Grid Objects
+    PIT_HAZARD {
         int x
         int y
     }
 
-    WUMPUS_POS {
+    GOLD_ITEM {
         int x
         int y
     }
 
-    GOLD_POS {
-        int x
-        int y
+    %% RL Specific Memory
+    SCENT_MEMORY {
+        matrix scent_grid
+        list wumpus_visited
+        list pending_trail
     }
 
-    PIT_POS {
-        int x
-        int y
-    }
-
-    SCENT_MEMORY_SYSTEM {
-        string scent_grid_matrix
-        string wumpus_visited_set
-        string pending_player_trail
-    }
-
-    SESSION_STATE ||--|| GAME_ENGINE : engine
-    GAME_ENGINE ||--|| PLAYER_POS : player_pos
-    GAME_ENGINE ||--|| WUMPUS_POS : wumpus_pos
-    GAME_ENGINE ||--|| GOLD_POS : gold_pos
-    GAME_ENGINE ||--o{ PIT_POS : pits
-    GAME_ENGINE ||--|| SCENT_MEMORY_SYSTEM : scent_system
+    %% Relationships
+    SESSION_STATE ||--|| GAME_ENGINE : manages
+    GAME_ENGINE ||--|| PLAYER_ENTITY : tracks
+    GAME_ENGINE ||--|| WUMPUS_AGENT : coordinates
+    GAME_ENGINE ||--o{ PIT_HAZARD : generates
+    GAME_ENGINE ||--|| GOLD_ITEM : spawns
+    GAME_ENGINE ||--|| SCENT_MEMORY : updates
+    SCENT_MEMORY }o--|| WUMPUS_AGENT : influences
 ```
 
 ### 5.4 Training Pipeline Diagram
 
 ```mermaid
 sequenceDiagram
-    participant Env as HunterWumpusEnv (4x4)\nObservation: float32[9]\nAction: Discrete(4)
-    participant PPO as PPO Agent (SB3)\nPolicy: MlpPolicy\nNet: [64,64] / Adam 3e-4
-    participant Eval as EvalCallback\n(every 10k steps)
-    participant Model as hunter_wumpus_model.zip
+    autonumber
 
-    loop Training rollout
-        Env->>PPO: obs
-        PPO->>Env: action
-        Env->>PPO: reward, done, info
+    %% Define participants with HTML breaks for parser safety
+    participant Env as Gymnasium Env<br>(HunterWumpus 4x4)
+    participant PPO as PPO Agent<br>(Stable-Baselines3)
+    participant Eval as EvalCallback<br>(Monitor)
+    participant Disk as File System<br>(Checkpoints)
+
+    Note over Env, PPO: Phase 1: Experience Collection
+
+    loop Rollout Buffer (2048 steps)
+        Env->>PPO: 9D Observation Vector (Scent, Pos)
+        PPO->>Env: Discrete Action (N, S, E, W)
+        Env->>PPO: Reward, Done Flag, Info Dict
     end
 
-    PPO->>PPO: Update policy every 2048 steps
-    PPO->>Eval: Trigger periodic evaluation
-    Eval->>Model: Save best_model.zip checkpoint
-    PPO->>Model: Save final policy
+    Note over PPO, Disk: Phase 2: Policy Optimization & Callbacks
+
+    PPO->>PPO: Compute Advantages (GAE)
+    PPO->>PPO: Update Actor-Critic Networks<br>(10 Epochs, Batch Size 64)
+
+    opt Every 10,000 Timesteps
+        PPO->>Eval: Trigger Periodic Evaluation
+        Eval->>Env: Run Deterministic Test Episodes
+        Env-->>Eval: Return Mean Reward
+        Eval->>Disk: Save best_model.zip (If Improved)
+    end
+
+    Note over PPO, Disk: End of Training (1,000,000 Timesteps)
+    PPO->>Disk: Save final_wumpus_model.zip
 ```
 
 ## 6. Sensory and Memory System
