@@ -1,0 +1,21 @@
+{
+  "episodes": 100,
+  "counts": {
+    "PlayerLost_Wumpus": 69,
+    "PlayerLost_Pit": 23,
+    "PlayerWon": 8,
+    "Ongoing": 0,
+    "Other": 0
+  },
+  "rates": {
+    "wumpus_catch_rate": 0.69,
+    "pit_rate": 0.23,
+    "player_escape_rate": 0.08
+  },
+  "episode_length": {
+    "mean": 2.27,
+    "std": 1.239798370703882,
+    "min": 1,
+    "max": 6
+  }
+}
