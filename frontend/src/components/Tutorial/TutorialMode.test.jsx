@@ -18,22 +18,29 @@ describe('TutorialMode', () => {
     expect(screen.getByText('The Hunt Begins')).toBeInTheDocument();
 
     dismissPopup();
-    expect(screen.getByText('How to Move')).toBeInTheDocument();
+    expect(screen.getByText('Movement')).toBeInTheDocument();
 
     dismissPopup();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
     fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
     fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
-    expect(screen.getByText('A Cold Draft')).toBeInTheDocument();
+    expect(screen.getByText('You Feel a Cold Draft')).toBeInTheDocument();
 
     dismissPopup();
 
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
     fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
-    expect(screen.getByText('Something Foul')).toBeInTheDocument();
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    expect(screen.getByText('Something Foul Lurks Nearby')).toBeInTheDocument();
 
     dismissPopup();
-    fireEvent.keyDown(window, { code: 'KeyE', key: 'e' });
+    fireEvent.keyDown(window, { code: 'Space', key: ' ' });
     expect(screen.getByText('— AIM MODE —')).toBeInTheDocument();
 
     fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
@@ -41,12 +48,14 @@ describe('TutorialMode', () => {
 
     dismissPopup();
 
-    fireEvent.keyDown(window, { code: 'KeyA', key: 'a' });
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
     expect(screen.getByText('A Golden Glimmer')).toBeInTheDocument();
 
     dismissPopup();
 
-    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    fireEvent.keyDown(window, { code: 'KeyA', key: 'a' });
     expect(screen.getByText('You Survived')).toBeInTheDocument();
 
     fireEvent.click(
@@ -55,5 +64,29 @@ describe('TutorialMode', () => {
       }),
     );
     expect(onComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('steps back one tile after pit death instead of returning to start', () => {
+    render(<TutorialMode onComplete={vi.fn()} />);
+
+    dismissPopup();
+    dismissPopup();
+
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
+    fireEvent.keyDown(window, { code: 'KeyD', key: 'd' });
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+    dismissPopup();
+    fireEvent.keyDown(window, { code: 'KeyS', key: 's' });
+
+    expect(screen.getByText('You Fell Into a Pit')).toBeInTheDocument();
+    dismissPopup('Try Again →');
+
+    const player = screen.getByAltText('Player');
+    const playerTile = player.closest('[data-x][data-y]');
+
+    expect(playerTile).not.toBeNull();
+    expect(playerTile).toHaveAttribute('data-x', '3');
+    expect(playerTile).toHaveAttribute('data-y', '1');
   });
 });

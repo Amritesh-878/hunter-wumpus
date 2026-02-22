@@ -1,18 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Grid from '../Grid';
 import TutorialPopup from './TutorialPopup';
 import '../../styles/Tutorial.css';
 
-const GRID_SIZE = 4;
+const GRID_SIZE = 10;
 const START_POS = [0, 0];
 
-// Tutorial fixed layout:
-// Player start: [0,0], Pit: [2,1], Wumpus: [2,2], Gold: [0,3].
-const PIT_TILES = [[2, 1]];
-const WUMPUS_POS = [2, 2];
-const GOLD_POS = [0, 3];
+const PIT_TILES = [[3, 2], [6, 1], [8, 4], [2, 7], [7, 7]];
+const WUMPUS_POS = [6, 5];
+const GOLD_POS = [4, 8];
 
 const POPUP_PHASES = new Set([
   'welcome',
@@ -26,50 +24,48 @@ const POPUP_PHASES = new Set([
   'death_wumpus',
 ]);
 
-const AIM_ALLOWED_PHASES = new Set(['aim', 'find_gold', 'shine']);
-
 const POPUP_CONTENT = {
   welcome: {
     title: 'The Hunt Begins',
-    body: 'Your goal is to find the gold hidden somewhere in this dungeon and escape alive. Danger lurks in every corridor — bottomless pits are scattered across the floor, invisible until you fall in. The Wumpus, a predatory creature, moves through the tunnels hunting you. You carry one arrow. Use it wisely.',
+    body: 'Welcome to the dungeon, Hunter. Your goal is to find the gold hidden somewhere in these tunnels and escape alive. Standing between you and victory are bottomless pits — invisible cracks in the floor that will swallow you whole — and the Wumpus, a territorial predator that hunts by scent. You have one arrow. The dungeon does not forgive mistakes.',
   },
   move: {
-    title: 'How to Move',
-    body: 'Use WASD or the Arrow Keys to move in any direction. You can only see tiles you have already stepped on — the dungeon reveals itself as you explore. Your starting position is the only safe tile you are guaranteed.',
+    title: 'Movement',
+    body: 'Use WASD or the Arrow Keys to move one tile at a time in any direction. The dungeon is hidden — tiles only reveal themselves when you step on them. Explore carefully. Your starting tile is safe. What lies beyond it is unknown.',
   },
   breeze: {
-    title: 'A Cold Draft',
-    body: 'You feel a cold breeze. One of the tiles directly adjacent to you (up, down, left, or right) contains a bottomless pit. Pits are invisible — the breeze is your only warning. Do not enter a tile that is adjacent to a breeze unless you have confirmed it from multiple angles.',
+    title: 'You Feel a Cold Draft',
+    body: 'A chill in the air. This means a bottomless pit lies in one of the four tiles directly adjacent to you — up, down, left, or right. Pits are completely invisible. The breeze is your only warning. Never step into an unexplored tile that borders a breeze unless you have ruled it out from a different angle. Cross-reference breezes from multiple positions to locate the pit exactly.',
   },
   stench: {
-    title: 'Something Foul',
-    body: 'A rancid stench fills the air. The Wumpus is in a tile directly adjacent to you. The Wumpus moves each turn to hunt you. You can kill it with your single arrow. Press E to enter Aim Mode, then press a direction key to fire your arrow down that entire corridor. If the Wumpus is anywhere in that corridor — it dies.',
+    title: 'Something Foul Lurks Nearby',
+    body: 'A rancid stench fills the corridor. The Wumpus is in a tile directly adjacent to you. The Wumpus moves every turn in the real game — each time you move, it moves too, closing the gap. To survive, you must kill it first. You have one arrow. Press Space to enter Aim Mode, then press a direction key to fire your arrow down that entire corridor. The arrow travels the full length — if the Wumpus is anywhere in that line, it dies. Choose your shot carefully.',
   },
   wumpus_killed: {
     title: 'The Wumpus is Dead',
-    body: "Your arrow flew true. The Wumpus's hunt is over. The dungeon is quieter now — but the pits remain. Find the gold and escape. You will feel a faint golden glimmer when you are near it.",
+    body: "Your arrow cut through the dark and found its mark. The Wumpus is slain. The dungeon is quieter now. But the pits remain — watch for breezes. Your next goal is the gold. You'll sense a faint golden glimmer when you are near it. Follow the glimmer and step onto the gold tile to escape.",
   },
   shine: {
     title: 'A Golden Glimmer',
-    body: 'You sense the faint glow of gold nearby. The treasure is in an adjacent tile — or beneath your feet. Step onto it to claim it and escape the dungeon.',
+    body: "You sense the unmistakable shimmer of gold. It's in a tile adjacent to you — or right beneath your feet. This is what you came here for. Step onto the gold tile to claim it and escape the dungeon.",
   },
   complete: {
     title: 'You Survived',
-    body: 'You found the gold and made it out. You now know how the dungeon works — the breezes, the stench, the arrow. In the real game the Wumpus moves and the stakes are final. Good luck, Hunter.',
+    body: "You found the gold and made it out alive. You've learned to read the dungeon's warnings — the breezes that speak of pits, the stench that betrays the Wumpus, and the glimmer that marks your prize. In the real game, the Wumpus hunts you actively and there are no second chances. Trust your senses. Think before you step. Good luck, Hunter.",
   },
   death_pit: {
-    title: 'You Fell',
-    body: 'You stepped into a bottomless pit. In the real game, this ends your run instantly. Remember: a breeze means a pit is in an adjacent tile. Never step blindly into an unexplored tile when you have felt a breeze. You have been returned to the start.',
+    title: 'You Fell Into a Pit',
+    body: 'There was no bottom. In the real game, this ends your run permanently. A cold breeze always precedes a pit — if you felt a draft, it was warning you. Before entering any unknown tile, check whether you have felt a breeze from adjacent explored tiles. Cross-reference multiple positions to narrow down where the pit actually is. You have been stepped back to your previous position.',
   },
   death_wumpus: {
     title: 'The Wumpus Got You',
-    body: 'You walked directly into the Wumpus. In the real game, the Wumpus hunts you — it moves toward you each turn. The stench warns you when it is adjacent. Use your arrow (E + direction) to kill it before it catches you. You have been returned to the start.',
+    body: 'It was over in an instant. In the real game, the Wumpus moves toward you every turn — it hunts by tracking your scent trail. The stench icon warns you when it is adjacent. When you smell something foul, do not advance blindly. Use Space to enter Aim Mode and fire your arrow in the direction of the stench before the Wumpus closes in. You have been stepped back to your previous position.',
   },
 };
 
 const PHASE_MESSAGES = {
   exploring: 'Explore safely. Use clues before committing to unknown tiles.',
-  aim: 'Press E to enter aim mode, then fire with a direction key.',
+  aim: 'Press Space to enter Aim Mode, then fire with a direction key.',
   find_gold: 'The Wumpus is down. Keep hunting for the gold.',
   shine: 'Gold is close. Step carefully and claim it.',
 };
@@ -150,12 +146,17 @@ function resolvePostDeathPhase(currentPhase) {
     return 'exploring';
   }
 
+  if (currentPhase === 'stench') {
+    return 'aim';
+  }
+
   return currentPhase;
 }
 
 export default function TutorialMode({ onComplete }) {
-  const [playerPos, setPlayerPos] = useState([0, 0]);
-  const [exploredTiles, setExploredTiles] = useState([[0, 0]]);
+  const [playerPos, setPlayerPos] = useState([...START_POS]);
+  const [prevPos, setPrevPos] = useState([...START_POS]);
+  const [exploredTiles, setExploredTiles] = useState([[...START_POS]]);
   const [tutorialPhase, setTutorialPhase] = useState('welcome');
   const [phaseBeforeDeath, setPhaseBeforeDeath] = useState('exploring');
   const [isAiming, setIsAiming] = useState(false);
@@ -165,7 +166,6 @@ export default function TutorialMode({ onComplete }) {
   const [seenStench, setSeenStench] = useState(false);
   const [seenShine, setSeenShine] = useState(false);
 
-  const arrowsRemaining = 1;
   const isPopupPhase = POPUP_PHASES.has(tutorialPhase);
 
   const senses = useMemo(
@@ -224,13 +224,111 @@ export default function TutorialMode({ onComplete }) {
     }
 
     if (tutorialPhase === 'death_pit' || tutorialPhase === 'death_wumpus') {
-      setPlayerPos([...START_POS]);
-      setExploredTiles([[...START_POS]]);
+      setPlayerPos([...prevPos]);
       setIsAiming(false);
       setTutorialPhase(resolvePostDeathPhase(phaseBeforeDeath));
-      setMessage('You are back at the start. Continue the tutorial.');
+      setMessage('You were stepped back one tile. Continue carefully.');
     }
   };
+
+  const addExplored = useCallback((nextPos) => {
+    setExploredTiles((prev) => {
+      const key = toTileKey(nextPos);
+
+      if (prev.some((tile) => toTileKey(tile) === key)) {
+        return prev;
+      }
+
+      return [...prev, nextPos];
+    });
+  }, []);
+
+  const handleShoot = useCallback((direction) => {
+    if (!isWumpusAlive) {
+      setMessage('The Wumpus is already dead.');
+      return;
+    }
+
+    if (canHitWumpus(playerPos, direction)) {
+      setIsWumpusAlive(false);
+      setIsAiming(false);
+      setTutorialPhase('wumpus_killed');
+      return;
+    }
+
+    setMessage('Your arrow flies down the corridor and misses.');
+  }, [isWumpusAlive, playerPos]);
+
+  const handleMove = useCallback((direction) => {
+    const nextPos = getNextPosition(playerPos, direction);
+
+    if (isSameTile(nextPos, playerPos)) {
+      return;
+    }
+
+    setPrevPos([...playerPos]);
+    setPlayerPos(nextPos);
+    addExplored(nextPos);
+
+    if (PIT_TILES.some((pit) => isSameTile(pit, nextPos))) {
+      setPhaseBeforeDeath(tutorialPhase);
+      setTutorialPhase('death_pit');
+      return;
+    }
+
+    if (isWumpusAlive && isSameTile(nextPos, WUMPUS_POS)) {
+      setPhaseBeforeDeath(tutorialPhase);
+      setTutorialPhase('death_wumpus');
+      return;
+    }
+
+    if (isSameTile(nextPos, GOLD_POS)) {
+      setTutorialPhase('complete');
+      return;
+    }
+
+    const nextSenses = getSenses(nextPos, isWumpusAlive);
+
+    if (!seenBreeze && nextSenses.breeze) {
+      setSeenBreeze(true);
+      setTutorialPhase('breeze');
+      return;
+    }
+
+    if (seenBreeze && !seenStench && nextSenses.stench) {
+      setSeenStench(true);
+      setTutorialPhase('stench');
+      return;
+    }
+
+    if (!seenShine && nextSenses.shine) {
+      setSeenShine(true);
+      setTutorialPhase('shine');
+      return;
+    }
+
+    if (nextSenses.stench && isWumpusAlive) {
+      setMessage('You smell the Wumpus nearby.');
+      return;
+    }
+
+    if (nextSenses.breeze) {
+      setMessage('You feel a cold breeze.');
+      return;
+    }
+
+    if (nextSenses.shine) {
+      setMessage('A golden glimmer is nearby.');
+      return;
+    }
+
+    if (tutorialPhase === 'aim') {
+      setMessage(PHASE_MESSAGES.aim);
+      return;
+    }
+
+    setMessage(PHASE_MESSAGES.exploring);
+  }, [addExplored, isWumpusAlive, playerPos, seenBreeze, seenShine, seenStench, tutorialPhase]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -238,11 +336,16 @@ export default function TutorialMode({ onComplete }) {
         return;
       }
 
-      if (event.code === 'KeyE') {
-        if (isWumpusAlive && AIM_ALLOWED_PHASES.has(tutorialPhase)) {
-          event.preventDefault();
-          setIsAiming((prev) => !prev);
-        }
+      if (event.code === 'Space') {
+        event.preventDefault();
+        setIsAiming((prev) => !prev);
+        setMessage(() => {
+          if (isAiming) {
+            return 'Aim mode off. Movement restored.';
+          }
+
+          return 'Aim mode on. Press a direction to fire.';
+        });
 
         return;
       }
@@ -256,87 +359,11 @@ export default function TutorialMode({ onComplete }) {
       event.preventDefault();
 
       if (isAiming) {
-        if (isWumpusAlive && canHitWumpus(playerPos, direction)) {
-          setIsWumpusAlive(false);
-          setIsAiming(false);
-          setTutorialPhase('wumpus_killed');
-          return;
-        }
-
-        setMessage('Your arrow flies into the dark...');
+        handleShoot(direction);
         return;
       }
 
-      const nextPos = getNextPosition(playerPos, direction);
-
-      if (isSameTile(nextPos, playerPos)) {
-        return;
-      }
-
-      setPlayerPos(nextPos);
-      setExploredTiles((prev) => {
-        const key = toTileKey(nextPos);
-
-        if (prev.some((tile) => toTileKey(tile) === key)) {
-          return prev;
-        }
-
-        return [...prev, nextPos];
-      });
-
-      if (PIT_TILES.some((pit) => isSameTile(pit, nextPos))) {
-        setPhaseBeforeDeath(tutorialPhase);
-        setTutorialPhase('death_pit');
-        return;
-      }
-
-      if (isWumpusAlive && isSameTile(nextPos, WUMPUS_POS)) {
-        setPhaseBeforeDeath(tutorialPhase);
-        setTutorialPhase('death_wumpus');
-        return;
-      }
-
-      if (isSameTile(nextPos, GOLD_POS)) {
-        setTutorialPhase('complete');
-        return;
-      }
-
-      const nextSenses = getSenses(nextPos, isWumpusAlive);
-
-      if (!seenBreeze && nextSenses.breeze) {
-        setSeenBreeze(true);
-        setTutorialPhase('breeze');
-        return;
-      }
-
-      if (seenBreeze && !seenStench && nextSenses.stench) {
-        setSeenStench(true);
-        setTutorialPhase('stench');
-        return;
-      }
-
-      if (!seenShine && nextSenses.shine) {
-        setSeenShine(true);
-        setTutorialPhase('shine');
-        return;
-      }
-
-      if (nextSenses.stench && isWumpusAlive) {
-        setMessage('You smell the Wumpus nearby.');
-        return;
-      }
-
-      if (nextSenses.breeze) {
-        setMessage('You feel a cold breeze.');
-        return;
-      }
-
-      if (nextSenses.shine) {
-        setMessage('A golden glimmer is nearby.');
-        return;
-      }
-
-      setMessage(PHASE_MESSAGES.exploring);
+      handleMove(direction);
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -347,12 +374,10 @@ export default function TutorialMode({ onComplete }) {
   }, [
     isAiming,
     isPopupPhase,
+    handleMove,
+    handleShoot,
     isWumpusAlive,
-    playerPos,
-    seenBreeze,
-    seenShine,
-    seenStench,
-    tutorialPhase,
+    prevPos,
   ]);
 
   const gridStatus =
@@ -383,14 +408,8 @@ export default function TutorialMode({ onComplete }) {
           <p className='game-ui__label'>Tutorial</p>
           {isAiming ? <p className='game-ui__aim-warning'>— AIM MODE —</p> : null}
           <div className='hud-row game-ui__arrow-row'>
-            <span className='game-ui__arrow-label'>Arrow</span>
-            <span
-              className={`game-ui__arrow-value ${
-                arrowsRemaining > 0 ? 'hud-arrows--ready' : 'hud-arrows--spent'
-              }`}
-            >
-              {arrowsRemaining > 0 ? '1 Arrow' : 'No Arrows'}
-            </span>
+            <span className='game-ui__arrow-label'>Arrows</span>
+            <span className='game-ui__arrow-value hud-arrows--ready'>Unlimited</span>
           </div>
           <div className='hud-row game-ui__arrow-row'>
             <span className='game-ui__arrow-label'>Wumpus</span>
@@ -404,6 +423,18 @@ export default function TutorialMode({ onComplete }) {
           </div>
           <div className='game-ui__log'>
             <p className='game-ui__message'>{message}</p>
+          </div>
+          <div className='game-ui__arrow-row' style={{ marginTop: '0.5rem' }}>
+            <p className='game-ui__label' style={{ fontSize: '0.75rem' }}>Controls</p>
+            <p style={{ margin: 0, fontSize: '0.78rem', color: '#9f97af' }}>
+              WASD / ↑↓←→ — Move
+            </p>
+            <p style={{ margin: 0, fontSize: '0.78rem', color: '#9f97af' }}>
+              Space — Toggle Aim Mode
+            </p>
+            <p style={{ margin: 0, fontSize: '0.78rem', color: '#9f97af' }}>
+              WASD (aim) — Shoot
+            </p>
           </div>
           {tutorialPhase === 'complete' ? (
             <button type='button' className='btn-start' onClick={onComplete}>
