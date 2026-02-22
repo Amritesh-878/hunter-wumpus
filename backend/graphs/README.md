@@ -1,4 +1,4 @@
-2`# Wumpus Agent Training Graphs
+# Wumpus Agent Training Graphs
 
 These scripts analyze and visualize the trained PPO Wumpus agent.
 
@@ -31,6 +31,7 @@ Output graphs are saved to `backend/graphs/outputs/`.
 ## Output Graphs Explained
 
 ### `training_reward.png`
+
 - Plots mean evaluation reward at each checkpoint (`10k` to `1M` steps).
 - Orange line: checkpoint mean over 20 evaluation episodes.
 - Shaded band: ±1 standard deviation across those 20 episodes.
@@ -38,25 +39,29 @@ Output graphs are saved to `backend/graphs/outputs/`.
 - Interpretation: upward movement means the Wumpus policy is improving; narrow variance means more consistent behavior.
 
 ### `episode_length.png`
+
 - Plots mean episode length during training with ±1 standard deviation.
 - Very low values (around 2–3 steps) indicate the Wumpus tends to end episodes quickly.
 - Interpretation caveat: short episodes are efficient for a hunter policy, but may reduce match variety.
 
 ### `reward_distribution.png`
+
 - Side-by-side histogram comparison:
-	- Left: rewards at first checkpoint (`10k`, random/early policy behavior).
-	- Right: rewards at final checkpoint (`1M`, trained policy).
+  - Left: rewards at first checkpoint (`10k`, random/early policy behavior).
+  - Right: rewards at final checkpoint (`1M`, trained policy).
 - Both panels share identical bin edges and x-axis range for fair comparison.
 - Interpretation: rightward shift of the trained distribution indicates improved policy quality.
 
 ### `episode_stats.json`
+
 - Produced by `run_episodes.py` from 100 live rollout episodes.
 - Includes:
-	- outcome counts and rates (`PlayerLost_Wumpus`, `PlayerLost_Pit`, `PlayerWon`)
-	- episode length summary (mean/std/min/max)
+  - outcome counts and rates (`PlayerLost_Wumpus`, `PlayerLost_Pit`, `PlayerWon`)
+  - episode length summary (mean/std/min/max)
 - Interpretation: provides concrete outcome frequencies beyond training-only metrics.
 
 ### `wumpus_heatmap.png`
+
 - 4x4 heatmap from 500 episodes counting the Wumpus final position.
 - Cell annotations are absolute counts; color intensity reflects frequency.
 - Interpretation: reveals where the policy tends to finish interactions and potential positional bias.
