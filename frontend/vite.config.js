@@ -8,8 +8,8 @@ export default defineConfig(({ command }) => ({
     allowedHosts: ['oklahoma-trainers-carriers-favorites.trycloudflare.com'],
   },
   test: {
-    environment: 'jsdom',
     globals: true,
+    environment: 'jsdom',
     setupFiles: './src/setupTests.js',
   },
 }));

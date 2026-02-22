@@ -130,6 +130,60 @@ describe('useControls', () => {
     });
   });
 
+  it('does not dispatch SET_LOADING and ignores repeated movement while request is pending', async () => {
+    const dispatch = vi.fn();
+    const state = {
+      ...initialState,
+      gameId: 'game-1',
+      status: 'Ongoing',
+    };
+
+    let resolveMove;
+    const pendingMove = new Promise((resolve) => {
+      resolveMove = resolve;
+    });
+
+    movePlayer.mockReturnValueOnce(pendingMove);
+
+    renderHook(() => useControls(), {
+      wrapper: createWrapper(state, dispatch),
+    });
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w', code: 'KeyW' }));
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w', code: 'KeyW' }));
+
+    await waitFor(() => {
+      expect(movePlayer).toHaveBeenCalledTimes(1);
+    });
+
+    expect(dispatch).not.toHaveBeenCalledWith({
+      type: 'SET_LOADING',
+      payload: true,
+    });
+
+    resolveMove({
+      game_id: 'game-1',
+      status: 'Ongoing',
+      grid_size: 10,
+      turn: 1,
+      player_pos: [0, 1],
+      arrows_remaining: 1,
+      explored_tiles: [
+        [0, 0],
+        [0, 1],
+      ],
+      senses: { breeze: false, stench: false, shine: false },
+      message: '',
+    });
+
+    await waitFor(() => {
+      expect(dispatch).toHaveBeenCalledWith({
+        type: 'UPDATE_STATE',
+        payload: expect.any(Object),
+      });
+    });
+  });
+
   it('cleans up keydown listener on unmount', () => {
     const addSpy = vi.spyOn(window, 'addEventListener');
     const removeSpy = vi.spyOn(window, 'removeEventListener');

@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo } from 'react';
 import PropTypes from 'prop-types';
 import breezeIcon from '../assets/breeze.svg';
 import goldSprite from '../assets/gold.svg';
@@ -22,33 +22,7 @@ function Tile({
   revealGold,
   revealWumpus,
 }) {
-  const [isFlashing, setIsFlashing] = useState(false);
-  const previousExplored = useRef(isExplored);
-
-  useEffect(() => {
-    let flashTimer;
-
-    if (!previousExplored.current && isExplored) {
-      setIsFlashing(true);
-      flashTimer = setTimeout(() => {
-        setIsFlashing(false);
-      }, 600);
-    }
-
-    previousExplored.current = isExplored;
-
-    return () => {
-      if (flashTimer) {
-        clearTimeout(flashTimer);
-      }
-    };
-  }, [isExplored]);
-
   const classNames = ['tile', isExplored ? 'tile--explored' : 'tile--fog'];
-
-  if (isFlashing) {
-    classNames.push('tile--flash');
-  }
 
   if (isPlayerHere) {
     classNames.push('tile--player');

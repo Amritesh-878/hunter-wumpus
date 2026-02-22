@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { movePlayer } from '../api/gameService';
 import { useGame } from '../store/GameContext';
@@ -16,16 +16,21 @@ const CODE_TO_DIRECTION = {
 
 export function useControls() {
   const { state, dispatch } = useGame();
+  const actionInFlightRef = useRef(false);
 
   const sendDirectionAction = useCallback(
     async (direction) => {
-      if (!state.gameId || state.status !== 'Ongoing' || state.isLoading) {
+      if (
+        !state.gameId ||
+        state.status !== 'Ongoing' ||
+        state.isLoading ||
+        actionInFlightRef.current
+      ) {
         return;
       }
 
+      actionInFlightRef.current = true;
       const action = state.isAiming ? `SHOOT_${direction}` : direction;
-
-      dispatch({ type: 'SET_LOADING', payload: true });
 
       try {
         const gameState = await movePlayer(state.gameId, action);
@@ -33,6 +38,8 @@ export function useControls() {
         dispatch({ type: 'SET_AIMING', payload: false });
       } catch {
         dispatch({ type: 'SET_ERROR', payload: 'Connection lost. Try again.' });
+      } finally {
+        actionInFlightRef.current = false;
       }
     },
     [dispatch, state.gameId, state.isAiming, state.isLoading, state.status],
@@ -58,7 +65,7 @@ export function useControls() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (state.isLoading || state.status !== 'Ongoing') {
+      if (state.isLoading || state.status !== 'Ongoing' || actionInFlightRef.current) {
         return;
       }
 
