@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from engine.entities import Direction
 from rl.agent import WumpusAgent
@@ -67,7 +68,7 @@ def test_get_wumpus_action_is_deterministic_for_same_obs(monkeypatch: Any) -> No
     monkeypatch.setattr("rl.agent.PPO.load", lambda _: mock_model)
 
     agent = WumpusAgent(model_path="unused.zip")
-    obs = np.zeros((9,), dtype=np.float32)
+    obs: NDArray[np.float32] = np.zeros((9,), dtype=np.float32)
 
     first_action = agent.get_wumpus_action(obs)
     second_action = agent.get_wumpus_action(obs)

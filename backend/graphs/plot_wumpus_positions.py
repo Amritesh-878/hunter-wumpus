@@ -25,7 +25,7 @@ MODEL_PATH = MODELS_DIR / "hunter_wumpus_model"
 def collect_final_positions(num_episodes: int = 500, size: int = 4) -> NDArray[np.int_]:
     model = PPO.load(str(MODEL_PATH))
     env = HunterWumpusEnv(size=size)
-    heat = np.zeros((size, size), dtype=np.int_)
+    heat: NDArray[np.int_] = np.zeros((size, size), dtype=np.int_)
 
     for _ in range(num_episodes):
         obs, _ = env.reset()
