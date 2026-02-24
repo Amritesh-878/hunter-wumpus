@@ -16,37 +16,43 @@ Hunt the Wumpus is a full-stack adversarial dungeon game where the player naviga
 The frontend React application communicates with a FastAPI backend over REST. The backend orchestrates game state transitions via the engine and uses a PPO-based Wumpus agent for enemy behavior.
 
 ```mermaid
-graph TD
-    subgraph Browser[Browser (React + Vite)]
-        Grid[Grid]
-        Tile[Tile]
-        GameUI[GameUI]
-        GameOverModal[GameOverModal]
-        Controls[useControls]
-        Grid --> Tile
-        Tile --> GameUI
-        GameUI --> GameOverModal
-        GameOverModal --> Controls
+graph LR
+    %% Styling
+    classDef frontend fill:#61dafb,stroke:#333,stroke-width:2px,color:#000;
+    classDef backend fill:#059669,stroke:#333,stroke-width:2px,color:#fff;
+    classDef ai fill:#f59e0b,stroke:#333,stroke-width:2px,color:#000;
+
+    subgraph Client [Browser - React and Vite]
+        direction TB
+        Input[useControls Hook]:::frontend
+        UI[Game UI and Modals]:::frontend
+        Board[Grid and Tiles]:::frontend
+
+        Input -.->|Triggers Actions| UI
+        UI -.->|Renders State| Board
     end
 
-    subgraph Backend[FastAPI Backend (Python)]
-        Start[/game/start]
-        Move[/game/move]
-        Engine[GameEngine]
-        Agent[WumpusAgent (PPO)]
-        Start --> Engine
-        Move --> Engine
-        Engine --> Agent
+    subgraph Server [FastAPI Backend]
+        direction TB
+        Endpoints[API Routes<br>/start, /move]:::backend
+        Engine[Core Game Engine]:::backend
+
+        Endpoints <-->|Validates and Routes| Engine
     end
 
-    Browser -->|HTTP REST (JSON)| Backend
+    subgraph RL [Reinforcement Learning]
+        Agent{Wumpus Agent<br>PPO Model}:::ai
+    end
+
+    %% Network and System Connections
+    Client <-->|HTTP REST JSON| Endpoints
+    Engine <-->|Observations and Next Move| Agent
 ```
 
 ## Prerequisites
 
 - Python 3.11+
 - Node.js 18+
-- pnpm
 
 ## Installation & Running
 
@@ -55,13 +61,12 @@ graph TD
 cd backend
 python -m venv .venv
 # Windows: .venv\Scripts\activate  |  Unix: source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -r requirements.txt
 uvicorn api.main:app --reload --port 8000
 
 # Frontend (new terminal)
 cd frontend
 pnpm install
-echo "VITE_API_BASE_URL=http://localhost:8000" > .env
 pnpm dev
 ```
 
@@ -99,8 +104,8 @@ cd frontend && pnpm test
 │   ├── engine/        Core game logic (game_state.py, entities.py, senses.py)
 │   ├── rl/            RL environment (env.py), agent (agent.py), train (train.py)
 │   ├── models/        Trained PPO model (gitignored)
-│   ├── tests/         pytest test suite (31 tests)
-│   └── pyproject.toml
+│   ├── tests/         pytest test suite (35 tests)
+│   └── requirements.txt
 ├── frontend/
 │   ├── src/
 │   │   ├── api/       gameService.js (HTTP client)
