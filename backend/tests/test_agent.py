@@ -41,9 +41,8 @@ def _sample_game_state() -> dict[str, Any]:
 
 def test_build_observation_follows_locked_index_table(monkeypatch: Any) -> None:
     mock_model = MockModel(action=2)
-    monkeypatch.setattr("rl.agent.PPO.load", lambda _: mock_model)
 
-    agent = WumpusAgent(model_path="unused.zip")
+    agent = WumpusAgent(model=mock_model)
     obs = agent.build_observation(_sample_game_state())
 
     expected = np.array(
@@ -65,9 +64,8 @@ def test_build_observation_follows_locked_index_table(monkeypatch: Any) -> None:
 
 def test_get_wumpus_action_is_deterministic_for_same_obs(monkeypatch: Any) -> None:
     mock_model = MockModel(action=3)
-    monkeypatch.setattr("rl.agent.PPO.load", lambda _: mock_model)
 
-    agent = WumpusAgent(model_path="unused.zip")
+    agent = WumpusAgent(model=mock_model)
     obs: NDArray[np.float32] = np.zeros((9,), dtype=np.float32)
 
     first_action = agent.get_wumpus_action(obs)
@@ -84,7 +82,10 @@ def test_real_trained_model_loads_and_predicts_when_available() -> None:
         assert model_path.exists() is False
         return
 
-    agent = WumpusAgent(model_path=model_path)
+    from stable_baselines3 import PPO
+
+    ppo = PPO.load(str(model_path))
+    agent = WumpusAgent(model=ppo)
     action = agent.get_wumpus_action(np.zeros((9,), dtype=np.float32))
 
     assert action in {

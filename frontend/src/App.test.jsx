@@ -65,7 +65,7 @@ describe('App game loop', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
-    expect(mockStartGame).toHaveBeenCalledWith(10, 'mock-token');
+    expect(mockStartGame).toHaveBeenCalledWith(10, 'mock-token', 'medium');
     expect(screen.getByText('The Wumpus is thinking...')).toBeInTheDocument();
 
     resolveStart({

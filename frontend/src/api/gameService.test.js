@@ -66,6 +66,22 @@ describe('gameService', () => {
     );
   });
 
+  it('startGame sends difficulty in the request body', async () => {
+    globalThis.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ game_id: 'id' }),
+    });
+
+    await startGame(10, null, 'hard');
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: JSON.stringify({ grid_size: 10, difficulty: 'hard' }),
+      }),
+    );
+  });
+
   it('movePlayer sends expected payload and returns state', async () => {
     const payload = {
       game_id: 'test-id',
