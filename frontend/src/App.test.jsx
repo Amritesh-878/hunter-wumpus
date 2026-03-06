@@ -27,9 +27,11 @@ vi.mock('./auth/AuthContext', () => ({
     user: { uid: 'test-user' },
     token: 'mock-token',
     loading: false,
+    authSkipped: false,
     login: vi.fn(),
     signup: vi.fn(),
     logout: vi.fn(),
+    skipAuth: vi.fn(),
   }),
 }));
 

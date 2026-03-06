@@ -1,15 +1,16 @@
 import { useState } from 'react';
 
-import { useAuth } from '../auth/AuthContext';
+import { isUnrecoverableAuthError, useAuth } from '../auth/AuthContext';
 import '../styles/Auth.css';
 
 export default function Login() {
-  const { login, signup } = useAuth();
-  const [email, setEmail] = useState('');
+  const { login, signup, skipAuth } = useAuth();
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [showSkipPrompt, setShowSkipPrompt] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,12 +18,15 @@ export default function Login() {
     setBusy(true);
     try {
       if (isSignUp) {
-        await signup(email, password);
+        await signup(userId, password);
       } else {
-        await login(email, password);
+        await login(userId, password);
       }
     } catch (err) {
-      setError(err?.message ?? 'Authentication failed.');
+      setError(err?.message ?? 'Something went wrong. Try again.');
+      if (isUnrecoverableAuthError(err)) {
+        setShowSkipPrompt(true);
+      }
     } finally {
       setBusy(false);
     }
@@ -30,15 +34,18 @@ export default function Login() {
 
   return (
     <form className='login-panel' onSubmit={handleSubmit}>
-      <h2 className='login-panel__title'>{isSignUp ? 'Create Account' : 'Sign In'}</h2>
+      <h2 className='login-panel__title'>
+        {isSignUp ? 'Create Account' : 'Sign In'}
+      </h2>
       <input
         className='login-panel__input'
-        type='email'
-        placeholder='Email'
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        type='text'
+        placeholder='Player ID'
+        value={userId}
+        onChange={(e) => setUserId(e.target.value)}
         required
-        autoComplete='email'
+        autoComplete='username'
+        maxLength={32}
       />
       <input
         className='login-panel__input'
@@ -50,9 +57,19 @@ export default function Login() {
         autoComplete={isSignUp ? 'new-password' : 'current-password'}
       />
       {error ? <p className='login-panel__error'>{error}</p> : null}
-      <button className='login-panel__btn' type='submit' disabled={busy}>
-        {busy ? 'Please wait…' : isSignUp ? 'Sign Up' : 'Sign In'}
-      </button>
+      {showSkipPrompt ? (
+        <button
+          className='login-panel__btn login-panel__btn--skip'
+          type='button'
+          onClick={skipAuth}
+        >
+          Play Without Account
+        </button>
+      ) : (
+        <button className='login-panel__btn' type='submit' disabled={busy}>
+          {busy ? 'Please wait…' : isSignUp ? 'Sign Up' : 'Sign In'}
+        </button>
+      )}
       <button
         className='login-panel__toggle'
         type='button'
@@ -61,7 +78,16 @@ export default function Login() {
           setError('');
         }}
       >
-        {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+        {isSignUp
+          ? 'Already have an account? Sign In'
+          : "Don't have an account? Sign Up"}
+      </button>
+      <button
+        className='login-panel__skip-link'
+        type='button'
+        onClick={skipAuth}
+      >
+        Skip — play without an account
       </button>
     </form>
   );
