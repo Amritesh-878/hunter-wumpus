@@ -24,7 +24,11 @@ function GameShell() {
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      const gameState = await startGameRequest(state.gridSize, token, difficulty);
+      const gameState = await startGameRequest(
+        state.gridSize,
+        token,
+        difficulty,
+      );
       if (!resetBeforeRequest) dispatch({ type: 'RESET_STATE' });
       dispatch({ type: 'UPDATE_STATE', payload: gameState });
     } catch (error) {
@@ -56,9 +60,12 @@ function GameShell() {
     await runStartGame(true);
   };
 
-  const isGameOver = ['PlayerWon', 'WumpusKilled', 'PlayerLost_Pit', 'PlayerLost_Wumpus'].includes(
-    state.status,
-  );
+  const isGameOver = [
+    'PlayerWon',
+    'WumpusKilled',
+    'PlayerLost_Pit',
+    'PlayerLost_Wumpus',
+  ].includes(state.status);
 
   return (
     <main className='app'>
@@ -67,7 +74,9 @@ function GameShell() {
         <div className='app__title-divider' aria-hidden='true' />
       </header>
 
-      <section className={`app__content${appMode === 'menu' ? ' app__content--menu' : ''}`}>
+      <section
+        className={`app__content${appMode === 'menu' ? ' app__content--menu' : ''}`}
+      >
         {appMode === 'menu' ? (
           <section className='menu-panel' aria-label='Main menu'>
             <p className='menu-panel__subtitle'>Choose your path</p>
@@ -120,6 +129,7 @@ function GameShell() {
                 message={state.message}
                 status={state.status}
                 turn={state.turn}
+                wumpusesRemaining={state.wumpusesRemaining}
                 onDifficultyChange={setDifficulty}
                 onStartGame={() => runStartGame(true)}
                 onToggleAim={toggleAim}

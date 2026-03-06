@@ -461,7 +461,7 @@ export default function TutorialMode({ onComplete }) {
           ? 'PlayerWon'
           : 'Ongoing';
 
-  const gridWumpusPos = isWumpusAlive ? WUMPUS_POS : null;
+  const gridWumpusPositions = isWumpusAlive ? [WUMPUS_POS] : [];
 
   return (
     <>
@@ -473,7 +473,7 @@ export default function TutorialMode({ onComplete }) {
         status={gridStatus}
         pitTiles={PIT_TILES}
         goldPos={GOLD_POS}
-        wumpusPos={gridWumpusPos}
+        wumpusPositions={gridWumpusPositions}
       />
       <aside className='app__right-panel'>
         <section className={`game-ui${isAiming ? ' ui--aiming' : ''}`}>

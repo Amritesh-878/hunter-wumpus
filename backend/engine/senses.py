@@ -48,28 +48,30 @@ class ScentMemorySystem:
         self,
         pos: Position,
         pits: list[Position],
-        wumpus_pos: Position,
+        wumpus_positions: list[Position],
         gold_pos: Position,
     ) -> dict[str, bool | str | None]:
         neighbors = self._get_orthogonal_neighbors(pos)
 
+        directions_with_wumpus: set[str] = set()
+        for wp in wumpus_positions:
+            if pos == wp:
+                directions_with_wumpus = {"ALL"}
+                break
+            if Position(pos.x, pos.y - 1) == wp:
+                directions_with_wumpus.add("NORTH")
+            if Position(pos.x, pos.y + 1) == wp:
+                directions_with_wumpus.add("SOUTH")
+            if Position(pos.x + 1, pos.y) == wp:
+                directions_with_wumpus.add("EAST")
+            if Position(pos.x - 1, pos.y) == wp:
+                directions_with_wumpus.add("WEST")
+
         stench_direction: str | None = None
-        if pos == wumpus_pos:
+        if len(directions_with_wumpus) == 1:
+            stench_direction = next(iter(directions_with_wumpus))
+        elif len(directions_with_wumpus) > 1:
             stench_direction = "ALL"
-        else:
-            directions: list[str] = []
-            if Position(pos.x, pos.y - 1) == wumpus_pos:
-                directions.append("NORTH")
-            if Position(pos.x, pos.y + 1) == wumpus_pos:
-                directions.append("SOUTH")
-            if Position(pos.x + 1, pos.y) == wumpus_pos:
-                directions.append("EAST")
-            if Position(pos.x - 1, pos.y) == wumpus_pos:
-                directions.append("WEST")
-            if len(directions) == 1:
-                stench_direction = directions[0]
-            elif len(directions) > 1:
-                stench_direction = "ALL"
 
         return {
             "breeze": any(neighbor in pits for neighbor in neighbors),

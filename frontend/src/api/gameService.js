@@ -22,7 +22,11 @@ async function parseResponse(response) {
   throw new Error(detail);
 }
 
-export async function startGame(gridSize = 10, token = null, difficulty = 'medium') {
+export async function startGame(
+  gridSize = 10,
+  token = null,
+  difficulty = 'medium',
+) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 

@@ -11,6 +11,7 @@ export default function GameUI({
   message,
   status,
   turn,
+  wumpusesRemaining = 1,
   onDifficultyChange,
   onStartGame,
   onToggleAim,
@@ -41,6 +42,7 @@ export default function GameUI({
     status === 'Ongoing' && !isLoading && arrowsRemaining > 0;
   const isArrowReady = arrowsRemaining > 0;
   const turnLabel = `Turn #${turn}`;
+  const isImpossible = difficulty.startsWith('impossible');
 
   return (
     <section className={`game-ui ${isAiming ? 'ui--aiming' : ''}`}>
@@ -68,6 +70,17 @@ export default function GameUI({
       <div className='hud-row game-ui__turn-row'>
         <p className='game-ui__turn'>{turnLabel}</p>
       </div>
+
+      {isImpossible ? (
+        <div className='hud-row game-ui__wumpus-row'>
+          <span className='game-ui__wumpus-label'>Wumpuses</span>
+          <span
+            className={`game-ui__wumpus-value${wumpusesRemaining > 1 ? ' hud-wumpus--multi' : ''}`}
+          >
+            {wumpusesRemaining} remaining
+          </span>
+        </div>
+      ) : null}
 
       <div className='hud-row game-ui__arrow-row'>
         <span className='game-ui__arrow-label'>Arrow</span>
@@ -128,6 +141,7 @@ GameUI.propTypes = {
   message: PropTypes.string.isRequired,
   status: PropTypes.string.isRequired,
   turn: PropTypes.number.isRequired,
+  wumpusesRemaining: PropTypes.number,
   onDifficultyChange: PropTypes.func.isRequired,
   onStartGame: PropTypes.func.isRequired,
   onToggleAim: PropTypes.func.isRequired,

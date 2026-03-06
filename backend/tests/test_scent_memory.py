@@ -11,7 +11,7 @@ from engine.senses import MAX_SCENT
 def engine() -> GameEngine:
     game_engine = GameEngine(size=4, num_pits=0)
     game_engine.player_pos = Position(x=0, y=0)
-    game_engine.wumpus_pos = Position(x=3, y=3)
+    game_engine.wumpus_positions = [Position(x=3, y=3)]
     game_engine.gold_pos = Position(x=3, y=0)
     game_engine.pits = []
     return game_engine
@@ -85,7 +85,7 @@ def test_senses_no_diagonal(engine: GameEngine) -> None:
 
 
 def test_stench_when_wumpus_on_same_tile(engine: GameEngine) -> None:
-    engine.wumpus_pos = Position(x=1, y=1)
+    engine.wumpus_positions = [Position(x=1, y=1)]
 
     senses = engine.get_senses(Position(x=1, y=1))
     assert senses["stench_direction"] == "ALL"

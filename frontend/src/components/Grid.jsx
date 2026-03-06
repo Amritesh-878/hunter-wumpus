@@ -16,7 +16,7 @@ function Grid({
   status,
   pitTiles = [],
   goldPos = null,
-  wumpusPos = null,
+  wumpusPositions = [],
 }) {
   const [playerX, playerY] = playerPos;
   const exploredSet = useMemo(
@@ -31,9 +31,9 @@ function Grid({
     () => (goldPos ? tileKey(goldPos[0], goldPos[1]) : null),
     [goldPos],
   );
-  const wumpusKey = useMemo(
-    () => (wumpusPos ? tileKey(wumpusPos[0], wumpusPos[1]) : null),
-    [wumpusPos],
+  const wumpusKeySet = useMemo(
+    () => new Set(wumpusPositions.map(([x, y]) => tileKey(x, y))),
+    [wumpusPositions],
   );
   const isTerminal = status !== 'idle' && status !== 'Ongoing';
   const terminalPit = status === 'PlayerLost_Pit';
@@ -67,7 +67,7 @@ function Grid({
           }
           revealWumpus={
             isTerminal &&
-            (wumpusKey === currentKey || (isPlayerHere && terminalWumpus))
+            (wumpusKeySet.has(currentKey) || (isPlayerHere && terminalWumpus))
           }
         />,
       );
@@ -98,7 +98,7 @@ Grid.propTypes = {
   status: PropTypes.string.isRequired,
   pitTiles: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
   goldPos: PropTypes.arrayOf(PropTypes.number),
-  wumpusPos: PropTypes.arrayOf(PropTypes.number),
+  wumpusPositions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
 };
 
 export default memo(Grid);
