@@ -6,6 +6,7 @@ import { hasConfig as hasFirebase } from './auth/firebase';
 import GameOverModal from './components/GameOverModal';
 import GameUI from './components/GameUI';
 import Grid from './components/Grid';
+import LevelSelect from './components/LevelSelect';
 import LoadingOverlay from './components/LoadingOverlay';
 import Login from './components/Login';
 import TutorialMode from './components/Tutorial/TutorialMode';
@@ -17,7 +18,7 @@ function GameShell() {
   const { state, dispatch } = useGame();
   const { isAiming, toggleAim } = useControls();
   const { user, token, loading: authLoading, authSkipped } = useAuth();
-  const [appMode, setAppMode] = useState('menu');
+  const [appMode, setAppMode] = useState('level-select');
   const [difficulty, setDifficulty] = useState('medium');
 
   const runStartGame = async (resetBeforeRequest) => {
@@ -76,8 +77,16 @@ function GameShell() {
       </header>
 
       <section
-        className={`app__content${appMode === 'menu' ? ' app__content--menu' : ''}`}
+        className={`app__content${appMode === 'menu' || appMode === 'level-select' ? ' app__content--menu' : ''}`}
       >
+        {appMode === 'level-select' ? (
+          <LevelSelect
+            value={difficulty}
+            onChange={setDifficulty}
+            onConfirm={() => setAppMode('menu')}
+          />
+        ) : null}
+
         {appMode === 'menu' ? (
           <section className='menu-panel' aria-label='Main menu'>
             <p className='menu-panel__subtitle'>Choose your path</p>
@@ -131,7 +140,7 @@ function GameShell() {
                 status={state.status}
                 turn={state.turn}
                 wumpusesRemaining={state.wumpusesRemaining}
-                onDifficultyChange={setDifficulty}
+                onChangeDifficulty={() => setAppMode('level-select')}
                 onStartGame={() => runStartGame(true)}
                 onToggleAim={toggleAim}
               />

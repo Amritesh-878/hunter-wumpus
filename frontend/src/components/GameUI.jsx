@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import DifficultySelect from './DifficultySelect';
-
 export default function GameUI({
   arrowsRemaining,
   difficulty,
@@ -12,7 +10,7 @@ export default function GameUI({
   status,
   turn,
   wumpusesRemaining = 1,
-  onDifficultyChange,
+  onChangeDifficulty,
   onStartGame,
   onToggleAim,
 }) {
@@ -61,11 +59,13 @@ export default function GameUI({
             : 'Start Game'}
       </button>
 
-      <DifficultySelect
-        value={difficulty}
-        onChange={onDifficultyChange}
-        disabled={status === 'Ongoing'}
-      />
+      <button
+        type='button'
+        className='btn-aim game-ui__change-diff'
+        onClick={onChangeDifficulty}
+      >
+        Change Difficulty
+      </button>
 
       <div className='hud-row game-ui__turn-row'>
         <p className='game-ui__turn'>{turnLabel}</p>
@@ -142,7 +142,7 @@ GameUI.propTypes = {
   status: PropTypes.string.isRequired,
   turn: PropTypes.number.isRequired,
   wumpusesRemaining: PropTypes.number,
-  onDifficultyChange: PropTypes.func.isRequired,
+  onChangeDifficulty: PropTypes.func.isRequired,
   onStartGame: PropTypes.func.isRequired,
   onToggleAim: PropTypes.func.isRequired,
 };

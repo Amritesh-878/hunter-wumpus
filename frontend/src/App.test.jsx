@@ -46,6 +46,10 @@ function renderApp() {
   );
 }
 
+function confirmLevelSelect() {
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+}
+
 describe('App game loop', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -53,6 +57,18 @@ describe('App game loop', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it('shows level select screen before menu', () => {
+    renderApp();
+    expect(screen.getByText('Select Difficulty')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
+  });
+
+  it('navigates from level select to menu on confirm', () => {
+    renderApp();
+    confirmLevelSelect();
+    expect(screen.getByRole('button', { name: 'Start Game' })).toBeInTheDocument();
   });
 
   it('starts a game and clears loading overlay on success', async () => {
@@ -64,6 +80,7 @@ describe('App game loop', () => {
     mockStartGame.mockReturnValueOnce(pendingStart);
 
     renderApp();
+    confirmLevelSelect();
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
@@ -108,6 +125,7 @@ describe('App game loop', () => {
     });
 
     renderApp();
+    confirmLevelSelect();
     fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
     await act(async () => {
@@ -151,6 +169,7 @@ describe('App game loop', () => {
       });
 
     renderApp();
+    confirmLevelSelect();
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
@@ -179,6 +198,7 @@ describe('App game loop', () => {
 
   it('opens tutorial mode from menu', () => {
     renderApp();
+    confirmLevelSelect();
 
     fireEvent.click(screen.getByRole('button', { name: 'Tutorial' }));
 
