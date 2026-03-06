@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.auth import init_firebase
 from api.routes import router
+from api.telemetry import start_processor
 
 app = FastAPI(title="Hunter Wumpus API")
 
@@ -18,3 +19,4 @@ app.add_middleware(
 app.include_router(router)
 
 init_firebase()
+start_processor()

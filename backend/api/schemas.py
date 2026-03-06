@@ -61,3 +61,4 @@ class GameStateResponse(BaseModel):
     explored_tiles: list[tuple[int, int]]
     senses: SensesPayload
     message: str
+    wumpuses_remaining: int = 1

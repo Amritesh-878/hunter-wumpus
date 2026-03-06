@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import uuid
 from dataclasses import dataclass, field
 
@@ -7,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from api.auth import get_optional_user, update_user_profile
 from api.schemas import ActionType, GameStateResponse, MoveRequest, SensesPayload, StartRequest
+from api.telemetry import enqueue_stats
 from engine.entities import Direction, Position
 from engine.game_state import GameEngine
 from rl import model_registry
@@ -102,23 +104,31 @@ def _direction_label(direction: Direction) -> str:
     return "WEST"
 
 
-def _arrow_hits_wumpus(engine: GameEngine, direction: Direction) -> bool:
+def _arrow_hits_wumpus(engine: GameEngine, direction: Direction) -> int | None:
+    """Return index of first wumpus hit by an arrow, or None."""
     player = engine.player_pos
-    wumpus = engine.wumpus_pos
-    if direction == Direction.NORTH:
-        return player.x == wumpus.x and wumpus.y < player.y
-    if direction == Direction.SOUTH:
-        return player.x == wumpus.x and wumpus.y > player.y
-    if direction == Direction.EAST:
-        return player.y == wumpus.y and wumpus.x > player.x
-    return player.y == wumpus.y and wumpus.x < player.x
+    for i, wumpus in enumerate(engine.wumpus_positions):
+        hit = False
+        if direction == Direction.NORTH:
+            hit = player.x == wumpus.x and wumpus.y < player.y
+        elif direction == Direction.SOUTH:
+            hit = player.x == wumpus.x and wumpus.y > player.y
+        elif direction == Direction.EAST:
+            hit = player.y == wumpus.y and wumpus.x > player.x
+        elif direction == Direction.WEST:
+            hit = player.y == wumpus.y and wumpus.x < player.x
+        if hit:
+            return i
+    return None
 
 
-def _observation_state(engine: GameEngine) -> dict[str, object]:
+def _observation_state_for_wumpus(
+    engine: GameEngine, wumpus_pos: Position,
+) -> dict[str, object]:
     return {
         "grid_size": engine.size,
         "player_pos": [engine.player_pos.x, engine.player_pos.y],
-        "wumpus_pos": [engine.wumpus_pos.x, engine.wumpus_pos.y],
+        "wumpus_pos": [wumpus_pos.x, wumpus_pos.y],
         "scent_grid": [row[:] for row in engine.scent_grid],
     }
 
@@ -140,6 +150,7 @@ def _build_response(
         explored_tiles=session.explored_tiles,
         senses=SensesPayload(**senses),
         message=session.message,
+        wumpuses_remaining=len(session.engine.wumpus_positions),
     )
 
 
@@ -156,13 +167,46 @@ def _maybe_update_profile(session: SessionState) -> None:
     update_user_profile(session.user_id, "", won)
 
 
+_ENTITY_COUNTS: dict[str, tuple[tuple[int, int], tuple[int, int]]] = {
+    "impossible_i": ((1, 2), (3, 6)),
+    "impossible_ii": ((2, 3), (4, 8)),
+    "impossible_iii": ((3, 4), (6, 10)),
+}
+
+
+def _get_entity_counts(difficulty: str, grid_size: int) -> tuple[int, int]:
+    """Return (wumpus_count, pit_count) for the given difficulty."""
+    if difficulty in _ENTITY_COUNTS:
+        (wmin, wmax), (pmin, pmax) = _ENTITY_COUNTS[difficulty]
+        return random.randint(wmin, wmax), random.randint(pmin, pmax)
+    # Easy/Medium/Hard: 1 wumpus, standard pit formula
+    pit_count = max(2, min(8, int(grid_size * 0.2)))
+    return 1, pit_count
+
+
+def _fire_telemetry(session: SessionState) -> None:
+    enqueue_stats(
+        user_id=session.user_id,
+        difficulty=session.difficulty,
+        status=session.engine.status,
+        turns=session.turn,
+        arrows_used=1 if session.arrows_remaining == 0 else 0,
+        player_x=session.engine.player_pos.x,
+        player_y=session.engine.player_pos.y,
+        wumpus_count=session.engine.num_wumpuses,
+        pit_count=len(session.engine.pits),
+    )
+
+
 @router.post("/game/start", response_model=GameStateResponse)
 async def start_game(
     request: StartRequest,
     user_id: str | None = Depends(get_optional_user),
 ) -> GameStateResponse:
-    pit_count = max(2, min(8, int(request.grid_size * 0.2)))
-    engine = GameEngine(size=request.grid_size, num_pits=pit_count)
+    wumpus_count, pit_count = _get_entity_counts(request.difficulty, request.grid_size)
+    engine = GameEngine(
+        size=request.grid_size, num_pits=pit_count, num_wumpuses=wumpus_count,
+    )
     game_id = str(uuid.uuid4())
     pacing = PACING_BY_DIFFICULTY.get(request.difficulty, 1)
     session = SessionState(
@@ -195,9 +239,16 @@ async def move(
         if session.arrows_remaining == 0:
             raise HTTPException(status_code=400, detail="No arrows remaining.")
         session.arrows_remaining = 0
-        if _arrow_hits_wumpus(session.engine, direction):
-            session.engine.status = "WumpusKilled"
-            session.message = "Your arrow finds its mark. The Wumpus is dead."
+        hit_index = _arrow_hits_wumpus(session.engine, direction)
+        if hit_index is not None:
+            session.engine.remove_wumpus(hit_index)
+            if len(session.engine.wumpus_positions) == 0:
+                session.engine.status = "WumpusKilled"
+                session.message = "Your arrow finds its mark. The Wumpus is dead."
+            else:
+                session.message = (
+                    "Your arrow strikes! A Wumpus falls, but others lurk in the dark."
+                )
         else:
             session.engine.status = session.engine.check_game_over()
             session.message = (
@@ -214,14 +265,17 @@ async def move(
 
     if session.engine.status != "Ongoing":
         _maybe_update_profile(session)
+        _fire_telemetry(session)
         return _build_response(request.game_id, session, response_senses_override)
 
     should_move_wumpus = session.turn % session.pacing_interval == 0
     if should_move_wumpus:
         agent = model_registry.load_model(session.difficulty)
-        obs = agent.build_observation(_observation_state(session.engine))
-        wumpus_action = agent.get_wumpus_action(obs)
-        session.engine.move_wumpus(wumpus_action)
+        for i, wp in enumerate(session.engine.wumpus_positions):
+            obs_state = _observation_state_for_wumpus(session.engine, wp)
+            obs = agent.build_observation(obs_state)
+            wumpus_action = agent.get_wumpus_action(obs)
+            session.engine.move_wumpus(i, wumpus_action)
         session.engine.status = session.engine.check_game_over()
     session.engine._update_scent()
 
@@ -244,7 +298,9 @@ async def move(
         else:
             session.message = _status_message(session.engine.status)
 
-    _maybe_update_profile(session)
+    if session.engine.status != "Ongoing":
+        _maybe_update_profile(session)
+        _fire_telemetry(session)
     return _build_response(request.game_id, session, response_senses_override)
 
 

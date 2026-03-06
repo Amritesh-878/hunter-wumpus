@@ -20,6 +20,7 @@
  * @property {boolean} isAiming
  * @property {string | null} error
  * @property {string} difficulty
+ * @property {number} wumpusesRemaining
  */
 
 /** @type {GameState} */
@@ -41,6 +42,7 @@ export const initialState = {
   isAiming: false,
   error: null,
   difficulty: 'medium',
+  wumpusesRemaining: 1,
 };
 
 export function gameReducer(state, action) {
@@ -71,6 +73,7 @@ export function gameReducer(state, action) {
         senses: action.payload.senses,
         message: action.payload.message,
         difficulty: action.payload.difficulty ?? state.difficulty,
+        wumpusesRemaining: action.payload.wumpuses_remaining ?? 1,
         isLoading: false,
         error: null,
       };

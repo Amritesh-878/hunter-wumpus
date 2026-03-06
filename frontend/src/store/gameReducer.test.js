@@ -37,6 +37,28 @@ describe('gameReducer', () => {
     expect(nextState.difficulty).toBe('hard');
   });
 
+  it('maps wumpuses_remaining from payload', () => {
+    const action = {
+      type: 'UPDATE_STATE',
+      payload: {
+        game_id: 'abc-123',
+        status: 'Ongoing',
+        grid_size: 10,
+        turn: 1,
+        player_pos: [0, 0],
+        arrows_remaining: 1,
+        explored_tiles: [[0, 0]],
+        senses: { breeze: false, stench_direction: null, shine: false },
+        message: '',
+        difficulty: 'impossible_ii',
+        wumpuses_remaining: 3,
+      },
+    };
+
+    const nextState = gameReducer(initialState, action);
+    expect(nextState.wumpusesRemaining).toBe(3);
+  });
+
   it('has difficulty in initialState', () => {
     expect(initialState.difficulty).toBe('medium');
   });

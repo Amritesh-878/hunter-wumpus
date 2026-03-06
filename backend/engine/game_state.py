@@ -16,24 +16,40 @@ GameStatus = Literal[
 
 
 class GameEngine:
-    def __init__(self, size: int = 4, num_pits: int = 3) -> None:
+    def __init__(self, size: int = 4, num_pits: int = 3, num_wumpuses: int = 1) -> None:
         if size < 2:
             raise ValueError("size must be at least 2")
         if num_pits < 0:
             raise ValueError("num_pits must be >= 0")
-        max_pits = (size * size) - 3
-        if num_pits > max_pits:
-            raise ValueError("num_pits is too large for the selected board size")
+        if num_wumpuses < 1:
+            raise ValueError("num_wumpuses must be >= 1")
+        max_entities = (size * size) - 1  # reserve (0,0)
+        if num_pits + num_wumpuses + 1 > max_entities:
+            raise ValueError("too many entities for the selected board size")
 
         self.size = size
         self.num_pits = num_pits
+        self.num_wumpuses = num_wumpuses
         self.player_pos: Position = Position(0, 0)
-        self.wumpus_pos: Position = Position(0, 0)
+        self.wumpus_positions: list[Position] = []
         self.gold_pos: Position = Position(0, 0)
         self.pits: list[Position] = []
         self.status: GameStatus = "Ongoing"
         self._scent_memory: ScentMemorySystem | None = None
         self._reset_board()
+
+    @property
+    def wumpus_pos(self) -> Position:
+        """Backward-compat shim for RL env (single-wumpus)."""
+        return self.wumpus_positions[0]
+
+    @wumpus_pos.setter
+    def wumpus_pos(self, value: Position) -> None:
+        """Backward-compat shim for RL env (single-wumpus)."""
+        if self.wumpus_positions:
+            self.wumpus_positions[0] = value
+        else:
+            self.wumpus_positions.append(value)
 
     def _all_non_start_positions(self) -> list[Position]:
         positions: list[Position] = []
@@ -80,14 +96,15 @@ class GameEngine:
         self.status = "Ongoing"
 
         available_positions = self._all_non_start_positions()
-        self.wumpus_pos = self._sample_with_distance_fallback(
+        self.wumpus_positions = self._sample_with_distance_fallback(
             available_positions,
-            count=1,
+            count=self.num_wumpuses,
             origin=self.player_pos,
             preferred_min_distance=3,
             fallback_min_distance=2,
-        )[0]
-        available_positions.remove(self.wumpus_pos)
+        )
+        for wp in self.wumpus_positions:
+            available_positions.remove(wp)
 
         self.gold_pos = self._sample_with_distance_fallback(
             available_positions,
@@ -105,7 +122,9 @@ class GameEngine:
             preferred_min_distance=1,
             fallback_min_distance=1,
         )
-        self._scent_memory = ScentMemorySystem(size=self.size, wumpus_start=self.wumpus_pos)
+        self._scent_memory = ScentMemorySystem(
+            size=self.size, wumpus_start=self.wumpus_positions[0],
+        )
 
     def _clamp_position(self, position: Position) -> Position:
         x = max(0, min(self.size - 1, position.x))
@@ -127,9 +146,23 @@ class GameEngine:
         self._require_scent_memory().queue_player_trail(previous_player_pos, self.player_pos)
         return self.check_game_over()
 
-    def move_wumpus(self, direction: Direction) -> None:
-        self.wumpus_pos = self._next_position(self.wumpus_pos, direction)
-        self._require_scent_memory().record_wumpus_visit(self.wumpus_pos)
+    def move_wumpus(self, index_or_direction: int | Direction, direction: Direction | None = None) -> None:
+        if isinstance(index_or_direction, Direction):
+            idx = 0
+            actual_direction = index_or_direction
+        else:
+            idx = index_or_direction
+            if direction is None:
+                raise ValueError("direction is required when index is given")
+            actual_direction = direction
+        self.wumpus_positions[idx] = self._next_position(
+            self.wumpus_positions[idx], actual_direction,
+        )
+        self._require_scent_memory().record_wumpus_visit(self.wumpus_positions[idx])
+
+    def remove_wumpus(self, index: int) -> None:
+        """Remove a killed wumpus from the board."""
+        self.wumpus_positions.pop(index)
 
     def _update_scent(self) -> None:
         self._require_scent_memory().update_scent()
@@ -138,7 +171,7 @@ class GameEngine:
         return self._require_scent_memory().get_senses(
             pos=pos,
             pits=self.pits,
-            wumpus_pos=self.wumpus_pos,
+            wumpus_positions=self.wumpus_positions,
             gold_pos=self.gold_pos,
         )
 
@@ -159,7 +192,7 @@ class GameEngine:
         if self.player_pos in self.pits:
             self.status = "PlayerLost_Pit"
             return self.status
-        if self.player_pos == self.wumpus_pos:
+        if self.player_pos in self.wumpus_positions:
             self.status = "PlayerLost_Wumpus"
             return self.status
         if self.player_pos == self.gold_pos:

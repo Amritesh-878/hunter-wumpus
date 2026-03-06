@@ -70,4 +70,20 @@ describe('GameUI', () => {
     renderGameUI({ status: 'Ongoing' });
     expect(screen.getByText('Easy')).toBeDisabled();
   });
+
+  it('shows wumpus count HUD for Impossible tiers', () => {
+    renderGameUI({
+      difficulty: 'impossible_ii',
+      wumpusesRemaining: 3,
+    });
+    expect(screen.getByText('3 remaining')).toBeInTheDocument();
+  });
+
+  it('hides wumpus count HUD for non-Impossible tiers', () => {
+    renderGameUI({
+      difficulty: 'medium',
+      wumpusesRemaining: 1,
+    });
+    expect(screen.queryByText('1 remaining')).not.toBeInTheDocument();
+  });
 });

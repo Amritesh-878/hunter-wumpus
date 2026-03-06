@@ -60,4 +60,30 @@ describe('Grid', () => {
     expect(pitTile).toHaveClass('tile--pit');
     expect(goldTile).toHaveClass('tile--gold');
   });
+
+  it('reveals multiple wumpus positions after terminal state', () => {
+    const { container } = render(
+      <Grid
+        gridSize={4}
+        playerPos={[0, 0]}
+        exploredTiles={[[0, 0]]}
+        senses={senses}
+        status='PlayerLost_Wumpus'
+        wumpusPositions={[
+          [1, 0],
+          [2, 2],
+        ]}
+      />,
+    );
+
+    const wumpusTile1 = container.querySelector(
+      '[data-x="1"][data-y="0"] [data-entity="wumpus"]',
+    );
+    const wumpusTile2 = container.querySelector(
+      '[data-x="2"][data-y="2"] [data-entity="wumpus"]',
+    );
+
+    expect(wumpusTile1).toBeInTheDocument();
+    expect(wumpusTile2).toBeInTheDocument();
+  });
 });

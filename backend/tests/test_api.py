@@ -35,6 +35,7 @@ def test_start_game_returns_contract_shape_and_no_hidden_fields() -> None:
     assert payload["explored_tiles"] == [[0, 0]]
     assert payload["message"] == "The hunt begins. Find the gold. Survive."
     assert payload["difficulty"] == "medium"
+    assert payload["wumpuses_remaining"] >= 1
     assert "wumpus_pos" not in payload
     assert "pit_positions" not in payload
     assert "gold_pos" not in payload
@@ -92,7 +93,7 @@ def test_move_resolves_turn_in_order_and_increments_turn(monkeypatch: Any) -> No
     game_id = start_payload["game_id"]
     session = _sessions[game_id]
     session.engine.player_pos = Position(x=0, y=0)
-    session.engine.wumpus_pos = Position(x=2, y=0)
+    session.engine.wumpus_positions = [Position(x=2, y=0)]
     session.engine.pits = [Position(x=5, y=5)]
     session.engine.gold_pos = Position(x=5, y=4)
 
@@ -112,6 +113,7 @@ def test_move_resolves_turn_in_order_and_increments_turn(monkeypatch: Any) -> No
         "PlayerLost_Pit",
         "PlayerLost_Wumpus",
     }
+    assert payload["wumpuses_remaining"] >= 0
     assert "wumpus_pos" not in payload
     assert "pit_positions" not in payload
     assert "gold_pos" not in payload
@@ -151,7 +153,7 @@ def test_move_reports_premove_stench_when_wumpus_kills_player(monkeypatch: Any) 
     game_id = start_payload["game_id"]
     session = _sessions[game_id]
     session.engine.player_pos = Position(x=0, y=0)
-    session.engine.wumpus_pos = Position(x=2, y=0)
+    session.engine.wumpus_positions = [Position(x=2, y=0)]
     session.engine.pits = [Position(x=5, y=5)]
     session.engine.gold_pos = Position(x=5, y=4)
 
@@ -185,7 +187,7 @@ def test_shoot_miss_mentions_full_corridor_direction(monkeypatch: Any) -> None:
     game_id = start_payload["game_id"]
     session = _sessions[game_id]
     session.engine.player_pos = Position(x=0, y=0)
-    session.engine.wumpus_pos = Position(x=5, y=5)
+    session.engine.wumpus_positions = [Position(x=5, y=5)]
     session.engine.pits = [Position(x=4, y=4)]
     session.engine.gold_pos = Position(x=5, y=4)
 
