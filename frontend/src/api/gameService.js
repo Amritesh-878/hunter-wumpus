@@ -22,24 +22,26 @@ async function parseResponse(response) {
   throw new Error(detail);
 }
 
-export async function startGame(gridSize = 10) {
+export async function startGame(gridSize = 10, token = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const response = await fetch(`${BASE_URL}/game/start`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({ grid_size: gridSize }),
   });
 
   return parseResponse(response);
 }
 
-export async function movePlayer(gameId, action) {
+export async function movePlayer(gameId, action, token = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const response = await fetch(`${BASE_URL}/game/move`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({ game_id: gameId, player_action: action }),
   });
 
