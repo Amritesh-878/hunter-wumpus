@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import Grid from './Grid';
 
 describe('Grid', () => {
-  const senses = { breeze: false, stench: false, shine: false };
+  const senses = { breeze: false, stench_direction: null, shine: false };
 
   it('renders N×N tiles and sets --grid-size', () => {
     const { container } = render(

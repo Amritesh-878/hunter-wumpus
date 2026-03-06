@@ -1,7 +1,7 @@
 /**
  * @typedef {Object} Senses
  * @property {boolean} breeze
- * @property {boolean} stench
+ * @property {string|null} stench_direction
  * @property {boolean} shine
  */
 
@@ -32,7 +32,7 @@ export const initialState = {
   exploredTiles: [],
   senses: {
     breeze: false,
-    stench: false,
+    stench_direction: null,
     shine: false,
   },
   message: '',

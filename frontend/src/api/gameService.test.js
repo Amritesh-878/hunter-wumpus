@@ -24,7 +24,7 @@ describe('gameService', () => {
       player_pos: [0, 0],
       arrows_remaining: 1,
       explored_tiles: [[0, 0]],
-      senses: { breeze: false, stench: false, shine: false },
+      senses: { breeze: false, stench_direction: null, shine: false },
       message: 'The hunt begins. Find the gold. Survive.',
     };
 
@@ -78,7 +78,7 @@ describe('gameService', () => {
         [0, 0],
         [1, 0],
       ],
-      senses: { breeze: false, stench: false, shine: false },
+      senses: { breeze: false, stench_direction: null, shine: false },
       message: '',
     };
 

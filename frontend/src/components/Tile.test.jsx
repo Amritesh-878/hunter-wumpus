@@ -11,7 +11,7 @@ describe('Tile', () => {
         isExplored={true}
         isPlayerHere={true}
         showBreeze={false}
-        showStench={false}
+        stenchDirection={null}
         showShine={false}
         revealPit={false}
         revealGold={false}
@@ -42,13 +42,25 @@ describe('Tile', () => {
     expect(screen.getByAltText('Breeze')).toBeInTheDocument();
   });
 
-  it('renders stench indicator when showStench is true', () => {
-    const { container } = renderTile({ showStench: true });
+  it('renders directional stench edge when stenchDirection is NORTH', () => {
+    const { container } = renderTile({ stenchDirection: 'NORTH' });
 
     const tile = container.querySelector('.tile');
 
-    expect(tile).toHaveClass('tile--sense-stench');
-    expect(screen.getByAltText('Stench')).toBeInTheDocument();
+    expect(tile).toHaveClass('tile--stench-north');
+    expect(container.querySelector('.sense-edge--north')).toBeInTheDocument();
+  });
+
+  it('renders all stench edges when stenchDirection is ALL', () => {
+    const { container } = renderTile({ stenchDirection: 'ALL' });
+
+    const tile = container.querySelector('.tile');
+
+    expect(tile).toHaveClass('tile--stench-all');
+    expect(container.querySelector('.sense-edge--north')).toBeInTheDocument();
+    expect(container.querySelector('.sense-edge--south')).toBeInTheDocument();
+    expect(container.querySelector('.sense-edge--east')).toBeInTheDocument();
+    expect(container.querySelector('.sense-edge--west')).toBeInTheDocument();
   });
 
   it('renders shine indicator when showShine is true', () => {
@@ -64,33 +76,34 @@ describe('Tile', () => {
     const { container } = renderTile({
       isPlayerHere: false,
       showBreeze: false,
-      showStench: false,
+      stenchDirection: null,
       showShine: false,
     });
 
     const tile = container.querySelector('.tile');
 
     expect(tile).not.toHaveClass('tile--sense-breeze');
-    expect(tile).not.toHaveClass('tile--sense-stench');
+    expect(tile).not.toHaveClass('tile--stench-north');
+    expect(tile).not.toHaveClass('tile--stench-all');
     expect(tile).not.toHaveClass('tile--sense-shine');
     expect(screen.queryByAltText('Breeze')).not.toBeInTheDocument();
-    expect(screen.queryByAltText('Stench')).not.toBeInTheDocument();
+    expect(container.querySelector('.sense-edge')).not.toBeInTheDocument();
     expect(screen.queryByAltText('Shine')).not.toBeInTheDocument();
   });
 
-  it('renders all senses with distinct classes and icons', () => {
+  it('renders all senses with distinct classes', () => {
     const { container } = renderTile({
       showBreeze: true,
-      showStench: true,
+      stenchDirection: 'EAST',
       showShine: true,
     });
     const tile = container.querySelector('.tile');
 
     expect(tile).toHaveClass('tile--sense-breeze');
-    expect(tile).toHaveClass('tile--sense-stench');
+    expect(tile).toHaveClass('tile--stench-east');
     expect(tile).toHaveClass('tile--sense-shine');
     expect(screen.getByAltText('Breeze')).toBeInTheDocument();
-    expect(screen.getByAltText('Stench')).toBeInTheDocument();
+    expect(container.querySelector('.sense-edge--east')).toBeInTheDocument();
     expect(screen.getByAltText('Shine')).toBeInTheDocument();
   });
 
@@ -109,4 +122,3 @@ describe('Tile', () => {
     expect(screen.getByAltText('Wumpus')).toBeInTheDocument();
   });
 });
-

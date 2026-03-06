@@ -76,12 +76,14 @@ describe('App game loop', () => {
       player_pos: [0, 0],
       arrows_remaining: 1,
       explored_tiles: [[0, 0]],
-      senses: { breeze: false, stench: false, shine: false },
+      senses: { breeze: false, stench_direction: null, shine: false },
       message: 'The hunt begins. Find the gold. Survive.',
     });
 
     await waitFor(() => {
-      expect(screen.queryByText('The Wumpus is thinking...')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('The Wumpus is thinking...'),
+      ).not.toBeInTheDocument();
     });
 
     expect(screen.getByText('Turn #0')).toBeInTheDocument();
@@ -99,7 +101,7 @@ describe('App game loop', () => {
       player_pos: [0, 0],
       arrows_remaining: 1,
       explored_tiles: [[0, 0]],
-      senses: { breeze: false, stench: false, shine: false },
+      senses: { breeze: false, stench_direction: null, shine: false },
       message: 'You feel a cold draft. A pit may be nearby.',
     });
 
@@ -130,7 +132,7 @@ describe('App game loop', () => {
           [2, 0],
           [2, 1],
         ],
-        senses: { breeze: false, stench: false, shine: false },
+        senses: { breeze: false, stench_direction: null, shine: false },
         message: 'The ground gave way. There was no bottom.',
       })
       .mockRejectedValueOnce(new Error('Retry failed.'))
@@ -142,7 +144,7 @@ describe('App game loop', () => {
         player_pos: [0, 0],
         arrows_remaining: 1,
         explored_tiles: [[0, 0]],
-        senses: { breeze: false, stench: false, shine: false },
+        senses: { breeze: false, stench_direction: null, shine: false },
         message: 'The hunt begins. Find the gold. Survive.',
       });
 
@@ -179,7 +181,9 @@ describe('App game loop', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Tutorial' }));
 
     expect(screen.getByText('The Hunt Begins')).toBeInTheDocument();
-    expect(screen.getByText(/Your goal is to find the gold hidden somewhere/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Your goal is to find the gold hidden somewhere/i),
+    ).toBeInTheDocument();
     expect(mockStartGame).not.toHaveBeenCalled();
   });
 });

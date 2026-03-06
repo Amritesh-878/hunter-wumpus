@@ -14,7 +14,13 @@ import '../../styles/Tutorial.css';
 const GRID_SIZE = 10;
 const START_POS = [0, 0];
 
-const PIT_TILES = [[3, 2], [6, 1], [8, 4], [2, 7], [7, 7]];
+const PIT_TILES = [
+  [3, 2],
+  [6, 1],
+  [8, 4],
+  [2, 7],
+  [7, 7],
+];
 const WUMPUS_POS = [6, 5];
 const GOLD_POS = [4, 8];
 
@@ -48,7 +54,7 @@ const POPUP_CONTENT = {
   },
   stench: {
     title: 'Something Foul Lurks Nearby',
-    body: 'A rancid stench fills the corridor. The Wumpus is in a tile directly adjacent to you. The Wumpus moves every turn in the real game — each time you move, it moves too, closing the gap. To survive, you must kill it first. You have one arrow. Press Space to enter Aim Mode, then press a direction key to fire your arrow down that entire corridor. The arrow travels the full length — if the Wumpus is anywhere in that line, it dies. Choose your shot carefully.',
+    body: "A rancid stench fills the corridor. A red glow on the tile edge warns you of the Wumpus's direction. The Wumpus moves every turn in the real game — each time you move, it moves too, closing the gap. To survive, you must kill it first. You have one arrow. Press Space to enter Aim Mode, then press a direction key to fire your arrow down that entire corridor. The arrow travels the full length — if the Wumpus is anywhere in that line, it dies. Choose your shot carefully.",
     icon: stenchIcon,
   },
   wumpus_killed: {
@@ -73,7 +79,7 @@ const POPUP_CONTENT = {
   },
   death_wumpus: {
     title: 'The Wumpus Got You',
-    body: 'It was over in an instant. In the real game, the Wumpus moves toward you every turn — it hunts by tracking your scent trail. The stench icon warns you when it is adjacent. When you smell something foul, do not advance blindly. Use Space to enter Aim Mode and fire your arrow in the direction of the stench before the Wumpus closes in. You have been stepped back to your previous position.',
+    body: "It was over in an instant. In the real game, the Wumpus moves toward you every turn — it hunts by tracking your scent trail. A red glow on the tile edge warns you of the Wumpus's direction. When you sense something foul, do not advance blindly. Use Space to enter Aim Mode and fire your arrow in the direction of the stench before the Wumpus closes in. You have been stepped back to your previous position.",
     icon: wumpusIcon,
   },
 };
@@ -108,10 +114,25 @@ function isAdjacent(a, b) {
   return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) === 1;
 }
 
+function getStenchDirection(playerPos, targetPos) {
+  const [px, py] = playerPos;
+  const [tx, ty] = targetPos;
+  const dx = tx - px;
+  const dy = ty - py;
+
+  if (dx === 0 && dy === -1) return 'NORTH';
+  if (dx === 0 && dy === 1) return 'SOUTH';
+  if (dx === 1 && dy === 0) return 'EAST';
+  if (dx === -1 && dy === 0) return 'WEST';
+  return null;
+}
+
 function getSenses(playerPos, isWumpusAlive) {
   return {
     breeze: PIT_TILES.some((pit) => isAdjacent(playerPos, pit)),
-    stench: isWumpusAlive && isAdjacent(playerPos, WUMPUS_POS),
+    stench_direction: isWumpusAlive
+      ? getStenchDirection(playerPos, WUMPUS_POS)
+      : null,
     shine: isAdjacent(playerPos, GOLD_POS) || isSameTile(playerPos, GOLD_POS),
   };
 }
@@ -177,7 +198,9 @@ export default function TutorialMode({ onComplete }) {
   const [isAiming, setIsAiming] = useState(false);
   const [isWumpusAlive, setIsWumpusAlive] = useState(true);
   const [turn, setTurn] = useState(0);
-  const [message, setMessage] = useState('Dismiss the tutorial prompts to begin.');
+  const [message, setMessage] = useState(
+    'Dismiss the tutorial prompts to begin.',
+  );
   const [messageLog, setMessageLog] = useState([]);
   const [seenBreeze, setSeenBreeze] = useState(false);
   const [seenStench, setSeenStench] = useState(false);
@@ -278,95 +301,109 @@ export default function TutorialMode({ onComplete }) {
     });
   }, []);
 
-  const handleShoot = useCallback((direction) => {
-    if (!isWumpusAlive) {
-      setMessage('The Wumpus is already dead.');
-      return;
-    }
+  const handleShoot = useCallback(
+    (direction) => {
+      if (!isWumpusAlive) {
+        setMessage('The Wumpus is already dead.');
+        return;
+      }
 
-    setTurn((previousTurn) => previousTurn + 1);
+      setTurn((previousTurn) => previousTurn + 1);
 
-    if (canHitWumpus(playerPos, direction)) {
-      setIsWumpusAlive(false);
-      setIsAiming(false);
-      setTutorialPhase('wumpus_killed');
-      return;
-    }
+      if (canHitWumpus(playerPos, direction)) {
+        setIsWumpusAlive(false);
+        setIsAiming(false);
+        setTutorialPhase('wumpus_killed');
+        return;
+      }
 
-    setMessage('Your arrow flies down the corridor and misses.');
-  }, [isWumpusAlive, playerPos]);
+      setMessage('Your arrow flies down the corridor and misses.');
+    },
+    [isWumpusAlive, playerPos],
+  );
 
-  const handleMove = useCallback((direction) => {
-    const nextPos = getNextPosition(playerPos, direction);
+  const handleMove = useCallback(
+    (direction) => {
+      const nextPos = getNextPosition(playerPos, direction);
 
-    if (isSameTile(nextPos, playerPos)) {
-      return;
-    }
+      if (isSameTile(nextPos, playerPos)) {
+        return;
+      }
 
-    setPrevPos([...playerPos]);
-    setPlayerPos(nextPos);
-    addExplored(nextPos);
-    setTurn((previousTurn) => previousTurn + 1);
+      setPrevPos([...playerPos]);
+      setPlayerPos(nextPos);
+      addExplored(nextPos);
+      setTurn((previousTurn) => previousTurn + 1);
 
-    if (PIT_TILES.some((pit) => isSameTile(pit, nextPos))) {
-      setPhaseBeforeDeath(tutorialPhase);
-      setTutorialPhase('death_pit');
-      return;
-    }
+      if (PIT_TILES.some((pit) => isSameTile(pit, nextPos))) {
+        setPhaseBeforeDeath(tutorialPhase);
+        setTutorialPhase('death_pit');
+        return;
+      }
 
-    if (isWumpusAlive && isSameTile(nextPos, WUMPUS_POS)) {
-      setPhaseBeforeDeath(tutorialPhase);
-      setTutorialPhase('death_wumpus');
-      return;
-    }
+      if (isWumpusAlive && isSameTile(nextPos, WUMPUS_POS)) {
+        setPhaseBeforeDeath(tutorialPhase);
+        setTutorialPhase('death_wumpus');
+        return;
+      }
 
-    if (isSameTile(nextPos, GOLD_POS)) {
-      setTutorialPhase('complete');
-      return;
-    }
+      if (isSameTile(nextPos, GOLD_POS)) {
+        setTutorialPhase('complete');
+        return;
+      }
 
-    const nextSenses = getSenses(nextPos, isWumpusAlive);
+      const nextSenses = getSenses(nextPos, isWumpusAlive);
 
-    if (!seenBreeze && nextSenses.breeze) {
-      setSeenBreeze(true);
-      setTutorialPhase('breeze');
-      return;
-    }
+      if (!seenBreeze && nextSenses.breeze) {
+        setSeenBreeze(true);
+        setTutorialPhase('breeze');
+        return;
+      }
 
-    if (seenBreeze && !seenStench && nextSenses.stench) {
-      setSeenStench(true);
-      setTutorialPhase('stench');
-      return;
-    }
+      if (seenBreeze && !seenStench && nextSenses.stench_direction) {
+        setSeenStench(true);
+        setTutorialPhase('stench');
+        return;
+      }
 
-    if (!seenShine && nextSenses.shine) {
-      setSeenShine(true);
-      setTutorialPhase('shine');
-      return;
-    }
+      if (!seenShine && nextSenses.shine) {
+        setSeenShine(true);
+        setTutorialPhase('shine');
+        return;
+      }
 
-    if (nextSenses.stench && isWumpusAlive) {
-      setMessage('You smell the Wumpus nearby.');
-      return;
-    }
+      if (nextSenses.stench_direction && isWumpusAlive) {
+        setMessage('You smell the Wumpus nearby.');
+        return;
+      }
 
-    if (nextSenses.breeze) {
-      setMessage('You feel a cold breeze.');
-      return;
-    }
+      if (nextSenses.breeze) {
+        setMessage('You feel a cold breeze.');
+        return;
+      }
 
-    if (nextSenses.shine) {
-      setMessage('A golden glimmer is nearby.');
-      return;
-    }
+      if (nextSenses.shine) {
+        setMessage('A golden glimmer is nearby.');
+        return;
+      }
 
-    if (tutorialPhase === 'aim') {
-      setMessage(PHASE_MESSAGES.aim);
-      return;
-    }
+      if (tutorialPhase === 'aim') {
+        setMessage(PHASE_MESSAGES.aim);
+        return;
+      }
 
-    setMessage(PHASE_MESSAGES.exploring);
-  }, [addExplored, isWumpusAlive, playerPos, seenBreeze, seenShine, seenStench, tutorialPhase]);
+      setMessage(PHASE_MESSAGES.exploring);
+    },
+    [
+      addExplored,
+      isWumpusAlive,
+      playerPos,
+      seenBreeze,
+      seenShine,
+      seenStench,
+      tutorialPhase,
+    ],
+  );
 
   const toggleAimMode = useCallback(() => {
     setIsAiming((previousAiming) => {
