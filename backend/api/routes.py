@@ -4,8 +4,9 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from api.auth import get_optional_user, update_user_profile
 from api.schemas import ActionType, GameStateResponse, MoveRequest, SensesPayload, StartRequest
 from engine.entities import Direction, Position
 from engine.game_state import GameEngine
@@ -28,6 +29,7 @@ class SessionState:
     explored_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(0, 0)])
     explored_set: set[tuple[int, int]] = field(default_factory=lambda: {(0, 0)})
     message: str = "The hunt begins. Find the gold. Survive."
+    user_id: str | None = None
 
 
 router = APIRouter()
@@ -157,19 +159,34 @@ def _require_session(game_id: str) -> SessionState:
     return _sessions[game_id]
 
 
+def _maybe_update_profile(session: SessionState) -> None:
+    if session.user_id is None:
+        return
+    won = session.engine.status in ("PlayerWon", "WumpusKilled")
+    update_user_profile(session.user_id, "", won)
+
+
 @router.post("/game/start", response_model=GameStateResponse)
-def start_game(request: StartRequest) -> GameStateResponse:
+async def start_game(
+    request: StartRequest,
+    user_id: str | None = Depends(get_optional_user),
+) -> GameStateResponse:
     pit_count = max(2, min(8, int(request.grid_size * 0.2)))
     engine = GameEngine(size=request.grid_size, num_pits=pit_count)
     game_id = str(uuid.uuid4())
-    session = SessionState(engine=engine)
+    session = SessionState(engine=engine, user_id=user_id)
     _sessions[game_id] = session
     return _build_response(game_id, session)
 
 
 @router.post("/game/move", response_model=GameStateResponse)
-def move(request: MoveRequest) -> GameStateResponse:
+async def move(
+    request: MoveRequest,
+    user_id: str | None = Depends(get_optional_user),
+) -> GameStateResponse:
     session = _require_session(request.game_id)
+    if user_id is not None:
+        session.user_id = user_id
     if session.engine.status != "Ongoing":
         raise HTTPException(status_code=400, detail="Game is already over.")
 
@@ -200,6 +217,7 @@ def move(request: MoveRequest) -> GameStateResponse:
             pre_wumpus_senses = session.engine.get_senses(session.engine.player_pos)
 
     if session.engine.status != "Ongoing":
+        _maybe_update_profile(session)
         return _build_response(request.game_id, session, response_senses_override)
 
     agent = _get_agent()
@@ -228,6 +246,7 @@ def move(request: MoveRequest) -> GameStateResponse:
         else:
             session.message = _status_message(session.engine.status)
 
+    _maybe_update_profile(session)
     return _build_response(request.game_id, session, response_senses_override)
 
 
