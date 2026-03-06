@@ -88,4 +88,4 @@ def test_stench_when_wumpus_on_same_tile(engine: GameEngine) -> None:
     engine.wumpus_pos = Position(x=1, y=1)
 
     senses = engine.get_senses(Position(x=1, y=1))
-    assert senses["stench"] is True
+    assert senses["stench_direction"] == "ALL"

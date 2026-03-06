@@ -35,7 +35,7 @@ class MoveRequest(BaseModel):
 
 class SensesPayload(BaseModel):
     breeze: bool
-    stench: bool
+    stench_direction: str | None = None
     shine: bool
 
 
