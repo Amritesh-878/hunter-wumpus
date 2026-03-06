@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-import os
 import random
-from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 import numpy as np
 import numpy.typing as npt
-from stable_baselines3 import PPO
 
 from engine.entities import Direction, Position
 from engine.senses import MAX_SCENT
+
+
+class PredictableModel(Protocol):
+    def predict(
+        self, observation: npt.NDArray[np.float32], deterministic: bool = True
+    ) -> tuple[Any, Any]: ...
 
 
 class RandomWumpusAgent:
@@ -22,13 +25,10 @@ class RandomWumpusAgent:
     def get_wumpus_action(self, obs: npt.NDArray[np.float32]) -> Direction:
         return random.choice(list(Direction))
 
-DEFAULT_MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "hunter_wumpus_model"
-
 
 class WumpusAgent:
-    def __init__(self, model_path: str | Path | None = None) -> None:
-        resolved_model_path = self._resolve_model_path(model_path)
-        self.model = PPO.load(str(resolved_model_path))
+    def __init__(self, model: PredictableModel) -> None:
+        self.model = model
 
     def get_wumpus_action(self, obs: npt.NDArray[np.float32]) -> Direction:
         normalized_obs = np.asarray(obs, dtype=np.float32).reshape((9,))
@@ -65,14 +65,6 @@ class WumpusAgent:
             dtype=np.float32,
         )
         return obs
-
-    def _resolve_model_path(self, model_path: str | Path | None) -> Path:
-        if model_path is not None:
-            return Path(model_path)
-        env_model_path = os.getenv("MODEL_PATH")
-        if env_model_path is not None and env_model_path.strip() != "":
-            return Path(env_model_path)
-        return DEFAULT_MODEL_PATH
 
     def _scent_at(self, scent_grid: list[list[int]], grid_size: int, position: Position) -> float:
         if position.x < 0 or position.x >= grid_size or position.y < 0 or position.y >= grid_size:
