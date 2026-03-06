@@ -4,6 +4,14 @@
 # Project-specific exclusions
 *.png
 orchestrator-temp*.md
+MD Files/
+MASTER_PLAN_old.md
+
+# Credentials & secrets — never commit these
+backend/wumpus-bdf46-firebase-adminsdk-fbsvc-05a39772e9.json
+client_secret.json
+token.json
+backend/.env
 
 # Planning and agent coordination files (internal use only)
 backend_tasks/
@@ -427,3 +435,9 @@ token.json
 backend/firebase_service_account.json
 backend/telemetry_queue.jsonl
 *.jsonl
+
+wumpus-bdf46-firebase-adminsdk-fbsvc-05a39772e9.json
+MD Files
+
+MD Files/context.md
+Report_temp.md
