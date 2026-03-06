@@ -34,6 +34,7 @@ def test_start_game_returns_contract_shape_and_no_hidden_fields() -> None:
     assert payload["arrows_remaining"] == 1
     assert payload["explored_tiles"] == [[0, 0]]
     assert payload["message"] == "The hunt begins. Find the gold. Survive."
+    assert payload["difficulty"] == "medium"
     assert "wumpus_pos" not in payload
     assert "pit_positions" not in payload
     assert "gold_pos" not in payload
@@ -85,7 +86,7 @@ def test_move_shoot_without_arrows_returns_400() -> None:
 def test_move_resolves_turn_in_order_and_increments_turn(monkeypatch: Any) -> None:
     _sessions.clear()
     client = TestClient(app)
-    monkeypatch.setattr("api.routes._get_agent", lambda: StubAgent())
+    monkeypatch.setattr("rl.model_registry.load_model", lambda _d: StubAgent())
 
     start_payload = _start_game(client)
     game_id = start_payload["game_id"]
@@ -144,7 +145,7 @@ def test_status_unknown_game_returns_404() -> None:
 def test_move_reports_premove_stench_when_wumpus_kills_player(monkeypatch: Any) -> None:
     _sessions.clear()
     client = TestClient(app)
-    monkeypatch.setattr("api.routes._get_agent", lambda: StubAgent())
+    monkeypatch.setattr("rl.model_registry.load_model", lambda _d: StubAgent())
 
     start_payload = _start_game(client)
     game_id = start_payload["game_id"]
@@ -166,10 +167,19 @@ def test_move_reports_premove_stench_when_wumpus_kills_player(monkeypatch: Any) 
     assert payload["senses"]["stench_direction"] is not None
 
 
+def test_start_game_accepts_difficulty_and_returns_it() -> None:
+    _sessions.clear()
+    client = TestClient(app)
+    response = client.post("/game/start", json={"grid_size": 6, "difficulty": "hard"})
+    assert response.status_code == 200
+    payload = cast(dict[str, Any], response.json())
+    assert payload["difficulty"] == "hard"
+
+
 def test_shoot_miss_mentions_full_corridor_direction(monkeypatch: Any) -> None:
     _sessions.clear()
     client = TestClient(app)
-    monkeypatch.setattr("api.routes._get_agent", lambda: StubAgent())
+    monkeypatch.setattr("rl.model_registry.load_model", lambda _d: StubAgent())
 
     start_payload = _start_game(client)
     game_id = start_payload["game_id"]

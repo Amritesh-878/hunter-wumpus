@@ -381,3 +381,43 @@ kbd {
     width: min(560px, 100%);
   }
 }
+
+.difficulty-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.difficulty-btn {
+  flex: 1 1 auto;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.7rem;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.04rem;
+  text-transform: uppercase;
+  color: #a9a2b0;
+  background: #13111f;
+  border: 1px solid #2a2840;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
+}
+
+.difficulty-btn:hover:not(:disabled) {
+  border-color: #e2a04a;
+  color: #e2a04a;
+}
+
+.difficulty-btn--active {
+  border-color: #e2a04a;
+  color: #e2a04a;
+  box-shadow: 0 0 8px rgba(226, 160, 74, 0.3);
+}
+
+.difficulty-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

@@ -19,6 +19,7 @@
  * @property {boolean} isLoading
  * @property {boolean} isAiming
  * @property {string | null} error
+ * @property {string} difficulty
  */
 
 /** @type {GameState} */
@@ -39,6 +40,7 @@ export const initialState = {
   isLoading: false,
   isAiming: false,
   error: null,
+  difficulty: 'medium',
 };
 
 export function gameReducer(state, action) {
@@ -68,6 +70,7 @@ export function gameReducer(state, action) {
         exploredTiles: mergedExploredTiles,
         senses: action.payload.senses,
         message: action.payload.message,
+        difficulty: action.payload.difficulty ?? state.difficulty,
         isLoading: false,
         error: null,
       };

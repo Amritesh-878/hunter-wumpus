@@ -27,7 +27,7 @@ def _start_game(client: TestClient) -> dict[str, Any]:
 def test_pacing_interval_defaults_to_one(monkeypatch: Any) -> None:
     _sessions.clear()
     client = TestClient(app)
-    monkeypatch.setattr("api.routes._get_agent", lambda: StubAgent())
+    monkeypatch.setattr("rl.model_registry.load_model", lambda _d: StubAgent())
 
     payload = _start_game(client)
     game_id = payload["game_id"]
@@ -38,7 +38,7 @@ def test_pacing_interval_defaults_to_one(monkeypatch: Any) -> None:
 def test_pacing_interval_two_skips_wumpus_on_odd_turns(monkeypatch: Any) -> None:
     _sessions.clear()
     client = TestClient(app)
-    monkeypatch.setattr("api.routes._get_agent", lambda: StubAgent())
+    monkeypatch.setattr("rl.model_registry.load_model", lambda _d: StubAgent())
 
     payload = _start_game(client)
     game_id = payload["game_id"]

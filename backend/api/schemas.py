@@ -24,8 +24,19 @@ GameStatus = Literal[
 ]
 
 
+DifficultyType = Literal[
+    "easy",
+    "medium",
+    "hard",
+    "impossible_i",
+    "impossible_ii",
+    "impossible_iii",
+]
+
+
 class StartRequest(BaseModel):
     grid_size: int = Field(default=10, ge=4, le=16)
+    difficulty: DifficultyType = "medium"
 
 
 class MoveRequest(BaseModel):
@@ -43,6 +54,7 @@ class GameStateResponse(BaseModel):
     game_id: str
     status: GameStatus
     grid_size: int
+    difficulty: str
     turn: int
     player_pos: tuple[int, int]
     arrows_remaining: int

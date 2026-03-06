@@ -17,13 +17,14 @@ function GameShell() {
   const { isAiming, toggleAim } = useControls();
   const { user, token, loading: authLoading } = useAuth();
   const [appMode, setAppMode] = useState('menu');
+  const [difficulty, setDifficulty] = useState('medium');
 
   const runStartGame = async (resetBeforeRequest) => {
     if (resetBeforeRequest) dispatch({ type: 'RESET_STATE' });
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      const gameState = await startGameRequest(state.gridSize, token);
+      const gameState = await startGameRequest(state.gridSize, token, difficulty);
       if (!resetBeforeRequest) dispatch({ type: 'RESET_STATE' });
       dispatch({ type: 'UPDATE_STATE', payload: gameState });
     } catch (error) {
@@ -113,11 +114,13 @@ function GameShell() {
             <aside className='app__right-panel'>
               <GameUI
                 arrowsRemaining={state.arrowsRemaining}
+                difficulty={difficulty}
                 isAiming={isAiming}
                 isLoading={state.isLoading}
                 message={state.message}
                 status={state.status}
                 turn={state.turn}
+                onDifficultyChange={setDifficulty}
                 onStartGame={() => runStartGame(true)}
                 onToggleAim={toggleAim}
               />

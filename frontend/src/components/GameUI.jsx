@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
+import DifficultySelect from './DifficultySelect';
+
 export default function GameUI({
   arrowsRemaining,
+  difficulty,
   isAiming,
   isLoading,
   message,
   status,
   turn,
+  onDifficultyChange,
   onStartGame,
   onToggleAim,
 }) {
@@ -54,6 +58,12 @@ export default function GameUI({
             ? 'New Game'
             : 'Start Game'}
       </button>
+
+      <DifficultySelect
+        value={difficulty}
+        onChange={onDifficultyChange}
+        disabled={status === 'Ongoing'}
+      />
 
       <div className='hud-row game-ui__turn-row'>
         <p className='game-ui__turn'>{turnLabel}</p>
@@ -112,11 +122,13 @@ export default function GameUI({
 
 GameUI.propTypes = {
   arrowsRemaining: PropTypes.number.isRequired,
+  difficulty: PropTypes.string.isRequired,
   isAiming: PropTypes.bool.isRequired,
   isLoading: PropTypes.bool.isRequired,
   message: PropTypes.string.isRequired,
   status: PropTypes.string.isRequired,
   turn: PropTypes.number.isRequired,
+  onDifficultyChange: PropTypes.func.isRequired,
   onStartGame: PropTypes.func.isRequired,
   onToggleAim: PropTypes.func.isRequired,
 };

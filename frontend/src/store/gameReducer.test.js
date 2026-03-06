@@ -17,6 +17,7 @@ describe('gameReducer', () => {
         ],
         senses: { breeze: true, stench_direction: null, shine: false },
         message: 'You feel a cold draft. A pit may be nearby.',
+        difficulty: 'hard',
       },
     };
 
@@ -33,6 +34,11 @@ describe('gameReducer', () => {
     expect(nextState.senses.breeze).toBe(true);
     expect(nextState.isLoading).toBe(false);
     expect(nextState.error).toBeNull();
+    expect(nextState.difficulty).toBe('hard');
+  });
+
+  it('has difficulty in initialState', () => {
+    expect(initialState.difficulty).toBe('medium');
   });
 
   it('handles loading and reset actions', () => {

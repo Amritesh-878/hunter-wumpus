@@ -13,8 +13,9 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from rl.env import HunterWumpusEnv
 
 DEFAULT_TOTAL_TIMESTEPS = 1_000_000
-DEFAULT_MODEL_NAME = "hunter_wumpus_model"
 DEFAULT_SEED = 42
+GRID_SIZE = 10
+NUM_PITS = 2
 
 
 class RandomPolicy:
@@ -39,7 +40,7 @@ class RandomPolicy:
 
 def build_training_env(seed: int) -> DummyVecEnv:
     def _factory() -> Monitor:
-        env = HunterWumpusEnv(size=4, num_pits=3)
+        env = HunterWumpusEnv(size=GRID_SIZE, num_pits=NUM_PITS)
         env.reset(seed=seed)
         return Monitor(env)
 
@@ -47,25 +48,25 @@ def build_training_env(seed: int) -> DummyVecEnv:
 
 
 def build_eval_env(seed: int) -> Monitor:
-    env = HunterWumpusEnv(size=4, num_pits=3)
+    env = HunterWumpusEnv(size=GRID_SIZE, num_pits=NUM_PITS)
     env.reset(seed=seed)
     return Monitor(env)
 
 
 def train_and_save(
     total_timesteps: int,
-    model_output_dir: Path,
+    output_path: Path,
     seed: int,
 ) -> tuple[Path, float, float]:
-    model_output_dir.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     train_env = build_training_env(seed=seed)
     eval_env = build_eval_env(seed=seed + 1)
     try:
         eval_callback = EvalCallback(
             eval_env=eval_env,
-            best_model_save_path=str(model_output_dir),
-            log_path=str(model_output_dir),
+            best_model_save_path=str(output_path.parent),
+            log_path=str(output_path.parent),
             eval_freq=10_000,
             n_eval_episodes=20,
             deterministic=True,
@@ -107,27 +108,30 @@ def train_and_save(
             )
             raise RuntimeError(message)
 
-        model_path = model_output_dir / DEFAULT_MODEL_NAME
-        model.save(str(model_path))
-        return model_path.with_suffix(".zip"), random_reward, trained_reward
+        save_path = output_path.with_suffix("")
+        model.save(str(save_path))
+        return save_path.with_suffix(".zip"), random_reward, trained_reward
     finally:
         eval_env.close()
         train_env.close()
 
 
 def parse_args() -> argparse.Namespace:
+    default_output = Path(__file__).resolve().parents[1] / "models" / "hunter_wumpus_model.zip"
     parser = argparse.ArgumentParser(description="Train PPO agent for Hunter Wumpus")
     parser.add_argument(
+        "--steps",
         "--timesteps",
         type=int,
         default=DEFAULT_TOTAL_TIMESTEPS,
+        dest="steps",
         help="Total PPO training timesteps",
     )
     parser.add_argument(
-        "--output-dir",
+        "--output",
         type=Path,
-        default=Path(__file__).resolve().parents[1] / "models",
-        help="Directory where model zip will be saved",
+        default=default_output,
+        help="Output model path (e.g. models/easy.zip)",
     )
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="Random seed")
     return parser.parse_args()
@@ -136,8 +140,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     model_path, random_reward, trained_reward = train_and_save(
-        total_timesteps=args.timesteps,
-        model_output_dir=args.output_dir,
+        total_timesteps=args.steps,
+        output_path=args.output,
         seed=args.seed,
     )
     print(f"Saved model to: {model_path}")
