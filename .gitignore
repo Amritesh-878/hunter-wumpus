@@ -421,3 +421,5 @@ $RECYCLE.BIN/
 
 # Hunter Wumpus trained model artifacts
 backend/models/
+
+client_secret.json
