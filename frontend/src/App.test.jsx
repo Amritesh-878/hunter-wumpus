@@ -22,7 +22,27 @@ vi.mock('./hooks/useControls', () => ({
   }),
 }));
 
+vi.mock('./auth/AuthContext', () => ({
+  useAuth: () => ({
+    user: { uid: 'test-user' },
+    token: 'mock-token',
+    loading: false,
+    login: vi.fn(),
+    signup: vi.fn(),
+    logout: vi.fn(),
+  }),
+}));
+
 import App from './App';
+import { GameProvider } from './store/GameContext';
+
+function renderApp() {
+  return render(
+    <GameProvider>
+      <App />
+    </GameProvider>,
+  );
+}
 
 describe('App game loop', () => {
   beforeEach(() => {
@@ -41,11 +61,11 @@ describe('App game loop', () => {
 
     mockStartGame.mockReturnValueOnce(pendingStart);
 
-    render(<App />);
+    renderApp();
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
-    expect(mockStartGame).toHaveBeenCalledWith(10);
+    expect(mockStartGame).toHaveBeenCalledWith(10, 'mock-token');
     expect(screen.getByText('The Wumpus is thinking...')).toBeInTheDocument();
 
     resolveStart({
@@ -83,7 +103,7 @@ describe('App game loop', () => {
       message: 'You feel a cold draft. A pit may be nearby.',
     });
 
-    render(<App />);
+    renderApp();
     fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
     await act(async () => {
@@ -126,7 +146,7 @@ describe('App game loop', () => {
         message: 'The hunt begins. Find the gold. Survive.',
       });
 
-    render(<App />);
+    renderApp();
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
@@ -154,7 +174,7 @@ describe('App game loop', () => {
   });
 
   it('opens tutorial mode from menu', () => {
-    render(<App />);
+    renderApp();
 
     fireEvent.click(screen.getByRole('button', { name: 'Tutorial' }));
 
