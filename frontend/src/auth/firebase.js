@@ -10,8 +10,19 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID ?? '',
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const hasConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
 
-export { auth };
+let app = null;
+let auth = null;
+
+if (hasConfig) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+  } catch {
+    /* Firebase init failed — running without auth */
+  }
+}
+
+export { auth, hasConfig };
 export default app;

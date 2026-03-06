@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { startGame as startGameRequest } from './api/gameService';
 import { useAuth } from './auth/AuthContext';
+import { hasConfig as hasFirebase } from './auth/firebase';
 import GameOverModal from './components/GameOverModal';
 import GameUI from './components/GameUI';
 import Grid from './components/Grid';
@@ -41,7 +42,7 @@ function GameShell() {
     return <LoadingOverlay />;
   }
 
-  if (!user) {
+  if (hasFirebase && !user) {
     return (
       <main className='app'>
         <header className='app__titlebar'>

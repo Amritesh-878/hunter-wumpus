@@ -6,7 +6,7 @@ import {
 } from 'firebase/auth';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-import { auth } from './firebase';
+import { auth, hasConfig } from './firebase';
 
 const AuthContext = createContext({
   user: null,
@@ -20,9 +20,13 @@ const AuthContext = createContext({
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(hasConfig);
 
   useEffect(() => {
+    if (!hasConfig || !auth) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
