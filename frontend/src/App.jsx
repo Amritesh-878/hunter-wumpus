@@ -16,7 +16,7 @@ import './styles/App.css';
 function GameShell() {
   const { state, dispatch } = useGame();
   const { isAiming, toggleAim } = useControls();
-  const { user, token, loading: authLoading } = useAuth();
+  const { user, token, loading: authLoading, authSkipped } = useAuth();
   const [appMode, setAppMode] = useState('menu');
   const [difficulty, setDifficulty] = useState('medium');
 
@@ -42,7 +42,7 @@ function GameShell() {
     return <LoadingOverlay />;
   }
 
-  if (hasFirebase && !user) {
+  if (hasFirebase && !user && !authSkipped) {
     return (
       <main className='app'>
         <header className='app__titlebar'>

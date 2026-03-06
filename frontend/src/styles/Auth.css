@@ -75,3 +75,29 @@
   font-size: 0.85rem;
   text-align: center;
 }
+
+.login-panel__btn--skip {
+  background: linear-gradient(180deg, #6b6b8d, #4a4a68);
+  color: #ddd6c3;
+  border-color: #5a5a7a;
+}
+
+.login-panel__btn--skip:hover:not(:disabled) {
+  box-shadow: 0 0 10px rgba(107, 107, 141, 0.35);
+}
+
+.login-panel__skip-link {
+  background: none;
+  border: none;
+  color: #8a8aa0;
+  cursor: pointer;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 0.8rem;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.login-panel__skip-link:hover {
+  color: #e2a04a;
+}
