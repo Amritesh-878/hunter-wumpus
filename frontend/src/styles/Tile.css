@@ -27,7 +27,6 @@
 }
 
 .tile--sense-breeze::after,
-.tile--sense-stench::after,
 .tile--sense-shine::after {
   content: '';
   position: absolute;
@@ -41,11 +40,6 @@
 
 .tile--sense-breeze::after {
   left: 2px;
-  bottom: 2px;
-}
-
-.tile--sense-stench::after {
-  right: 2px;
   bottom: 2px;
 }
 
@@ -97,7 +91,6 @@
 }
 
 .tile [data-sense='breeze'],
-.tile [data-sense='stench'],
 .tile [data-sense='shine'] {
   position: absolute;
   width: 20px;
@@ -111,12 +104,51 @@
   left: 2px;
 }
 
-.tile [data-sense='stench'] {
-  bottom: 2px;
-  right: 2px;
-}
-
 .tile [data-sense='shine'] {
   top: 2px;
   right: 2px;
+}
+
+/* Directional stench — edge glow overlays */
+.sense-edge {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.sense-edge--north {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.sense-edge--south {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.sense-edge--east {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.sense-edge--west {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.tile--stench-north .sense-edge--north,
+.tile--stench-south .sense-edge--south,
+.tile--stench-east .sense-edge--east,
+.tile--stench-west .sense-edge--west,
+.tile--stench-all .sense-edge {
+  background: rgba(180, 40, 40, 0.85);
+  box-shadow: 0 0 8px rgba(180, 40, 40, 0.5);
 }

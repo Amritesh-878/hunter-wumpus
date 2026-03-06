@@ -15,7 +15,7 @@ describe('gameReducer', () => {
           [0, 0],
           [1, 0],
         ],
-        senses: { breeze: true, stench: false, shine: false },
+        senses: { breeze: true, stench_direction: null, shine: false },
         message: 'You feel a cold draft. A pit may be nearby.',
       },
     };
@@ -72,7 +72,7 @@ describe('gameReducer', () => {
           [1, 0],
           [2, 0],
         ],
-        senses: { breeze: false, stench: false, shine: false },
+        senses: { breeze: false, stench_direction: null, shine: false },
         message: '',
       },
     };

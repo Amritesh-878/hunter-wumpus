@@ -50,11 +50,29 @@ class ScentMemorySystem:
         pits: list[Position],
         wumpus_pos: Position,
         gold_pos: Position,
-    ) -> dict[str, bool]:
+    ) -> dict[str, bool | str | None]:
         neighbors = self._get_orthogonal_neighbors(pos)
+
+        stench_direction: str | None = None
+        if pos == wumpus_pos:
+            stench_direction = "ALL"
+        else:
+            directions: list[str] = []
+            if Position(pos.x, pos.y - 1) == wumpus_pos:
+                directions.append("NORTH")
+            if Position(pos.x, pos.y + 1) == wumpus_pos:
+                directions.append("SOUTH")
+            if Position(pos.x + 1, pos.y) == wumpus_pos:
+                directions.append("EAST")
+            if Position(pos.x - 1, pos.y) == wumpus_pos:
+                directions.append("WEST")
+            if len(directions) == 1:
+                stench_direction = directions[0]
+            elif len(directions) > 1:
+                stench_direction = "ALL"
+
         return {
             "breeze": any(neighbor in pits for neighbor in neighbors),
-            "stench": pos == wumpus_pos
-            or any(neighbor == wumpus_pos for neighbor in neighbors),
+            "stench_direction": stench_direction,
             "shine": pos == gold_pos or any(neighbor == gold_pos for neighbor in neighbors),
         }

@@ -163,7 +163,7 @@ def test_move_reports_premove_stench_when_wumpus_kills_player(monkeypatch: Any) 
     payload = response.json()
     assert payload["status"] == "PlayerLost_Wumpus"
     assert payload["message"] == "The stench was overwhelming — the Wumpus was upon you."
-    assert payload["senses"]["stench"] is True
+    assert payload["senses"]["stench_direction"] is not None
 
 
 def test_shoot_miss_mentions_full_corridor_direction(monkeypatch: Any) -> None:

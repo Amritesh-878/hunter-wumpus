@@ -134,7 +134,7 @@ class GameEngine:
     def _update_scent(self) -> None:
         self._require_scent_memory().update_scent()
 
-    def get_senses(self, pos: Position) -> dict[str, bool]:
+    def get_senses(self, pos: Position) -> dict[str, bool | str | None]:
         return self._require_scent_memory().get_senses(
             pos=pos,
             pits=self.pits,

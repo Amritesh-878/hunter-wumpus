@@ -54,7 +54,7 @@ describe('useControls', () => {
         [0, 0],
         [0, 1],
       ],
-      senses: { breeze: false, stench: false, shine: false },
+      senses: { breeze: false, stench_direction: null, shine: false },
       message: '',
     });
 
@@ -109,7 +109,7 @@ describe('useControls', () => {
       player_pos: [1, 0],
       arrows_remaining: 0,
       explored_tiles: [[0, 0]],
-      senses: { breeze: false, stench: false, shine: false },
+      senses: { breeze: false, stench_direction: null, shine: false },
       message: '',
     });
 
@@ -149,8 +149,12 @@ describe('useControls', () => {
       wrapper: createWrapper(state, dispatch),
     });
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w', code: 'KeyW' }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w', code: 'KeyW' }));
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'w', code: 'KeyW' }),
+    );
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'w', code: 'KeyW' }),
+    );
 
     await waitFor(() => {
       expect(movePlayer).toHaveBeenCalledTimes(1);
@@ -172,7 +176,7 @@ describe('useControls', () => {
         [0, 0],
         [0, 1],
       ],
-      senses: { breeze: false, stench: false, shine: false },
+      senses: { breeze: false, stench_direction: null, shine: false },
       message: '',
     });
 

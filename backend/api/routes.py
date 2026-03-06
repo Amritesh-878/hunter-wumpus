@@ -30,6 +30,7 @@ class SessionState:
     explored_set: set[tuple[int, int]] = field(default_factory=lambda: {(0, 0)})
     message: str = "The hunt begins. Find the gold. Survive."
     user_id: str | None = None
+    pacing_interval: int = 1
 
 
 router = APIRouter()
@@ -60,13 +61,18 @@ def _status_message(status: str) -> str:
     return ""
 
 
-def _sense_message(senses: dict[str, bool]) -> str:
-    if senses["breeze"] and senses["stench"]:
-        return "You feel both a draft and a stench. Tread carefully."
+def _sense_message(senses: dict[str, bool | str | None]) -> str:
+    stench = senses.get("stench_direction")
+    if senses["breeze"] and stench == "ALL":
+        return "You feel a draft, and the stench overwhelms from every direction."
+    if senses["breeze"] and stench is not None:
+        return f"You feel a draft, and the stench is stronger to the {stench}."
     if senses["breeze"]:
         return "You feel a cold draft. A pit may be nearby."
-    if senses["stench"]:
-        return "Something foul is close. The Wumpus is near."
+    if stench == "ALL":
+        return "The stench overwhelms you from every direction."
+    if stench is not None:
+        return f"The stench is stronger to the {stench}."
     if senses["shine"]:
         return "A faint glimmer catches your eye."
     return ""
@@ -137,7 +143,7 @@ def _observation_state(engine: GameEngine) -> dict[str, object]:
 def _build_response(
     game_id: str,
     session: SessionState,
-    senses_override: dict[str, bool] | None = None,
+    senses_override: dict[str, bool | str | None] | None = None,
 ) -> GameStateResponse:
     senses = senses_override or session.engine.get_senses(session.engine.player_pos)
     return GameStateResponse(
@@ -192,8 +198,8 @@ async def move(
 
     direction, is_shoot = _action_to_direction(request.player_action)
     session.turn += 1
-    pre_wumpus_senses: dict[str, bool] | None = None
-    response_senses_override: dict[str, bool] | None = None
+    pre_wumpus_senses: dict[str, bool | str | None] | None = None
+    response_senses_override: dict[str, bool | str | None] | None = None
 
     if is_shoot:
         if session.arrows_remaining == 0:
@@ -220,11 +226,13 @@ async def move(
         _maybe_update_profile(session)
         return _build_response(request.game_id, session, response_senses_override)
 
-    agent = _get_agent()
-    obs = agent.build_observation(_observation_state(session.engine))
-    wumpus_action = agent.get_wumpus_action(obs)
-    session.engine.move_wumpus(wumpus_action)
-    session.engine.status = session.engine.check_game_over()
+    should_move_wumpus = session.turn % session.pacing_interval == 0
+    if should_move_wumpus:
+        agent = _get_agent()
+        obs = agent.build_observation(_observation_state(session.engine))
+        wumpus_action = agent.get_wumpus_action(obs)
+        session.engine.move_wumpus(wumpus_action)
+        session.engine.status = session.engine.check_game_over()
     session.engine._update_scent()
 
     if session.engine.status == "Ongoing":
@@ -239,7 +247,7 @@ async def move(
         if (
             session.engine.status == "PlayerLost_Wumpus"
             and pre_wumpus_senses is not None
-            and pre_wumpus_senses["stench"]
+            and pre_wumpus_senses["stench_direction"]
         ):
             session.message = "The stench was overwhelming — the Wumpus was upon you."
             response_senses_override = pre_wumpus_senses

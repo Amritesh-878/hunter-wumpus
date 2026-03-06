@@ -55,11 +55,20 @@ function Grid({
           isExplored={isExplored}
           isPlayerHere={isPlayerHere}
           showBreeze={isPlayerHere && senses.breeze}
-          showStench={isPlayerHere && senses.stench}
+          stenchDirection={isPlayerHere ? senses.stench_direction : null}
           showShine={isPlayerHere && senses.shine}
-          revealPit={isTerminal && (pitSet.has(currentKey) || (isPlayerHere && terminalPit))}
-          revealGold={isTerminal && (goldKey === currentKey || (isPlayerHere && terminalGold))}
-          revealWumpus={isTerminal && (wumpusKey === currentKey || (isPlayerHere && terminalWumpus))}
+          revealPit={
+            isTerminal &&
+            (pitSet.has(currentKey) || (isPlayerHere && terminalPit))
+          }
+          revealGold={
+            isTerminal &&
+            (goldKey === currentKey || (isPlayerHere && terminalGold))
+          }
+          revealWumpus={
+            isTerminal &&
+            (wumpusKey === currentKey || (isPlayerHere && terminalWumpus))
+          }
         />,
       );
     }
@@ -83,7 +92,7 @@ Grid.propTypes = {
     .isRequired,
   senses: PropTypes.shape({
     breeze: PropTypes.bool.isRequired,
-    stench: PropTypes.bool.isRequired,
+    stench_direction: PropTypes.string,
     shine: PropTypes.bool.isRequired,
   }).isRequired,
   status: PropTypes.string.isRequired,

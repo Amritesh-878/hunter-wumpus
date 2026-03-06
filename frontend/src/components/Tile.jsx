@@ -5,9 +5,9 @@ import goldSprite from '../assets/gold.svg';
 import pitSprite from '../assets/pit.svg';
 import playerSprite from '../assets/player.svg';
 import shineIcon from '../assets/shine.svg';
-import stenchIcon from '../assets/stench.svg';
 import wumpusSprite from '../assets/wumpus.svg';
 
+import DirectionalSense from './DirectionalSense';
 import '../styles/Tile.css';
 
 function Tile({
@@ -16,7 +16,7 @@ function Tile({
   isExplored,
   isPlayerHere,
   showBreeze,
-  showStench,
+  stenchDirection,
   showShine,
   revealPit,
   revealGold,
@@ -32,8 +32,13 @@ function Tile({
     classNames.push('tile--sense-breeze');
   }
 
-  if (showStench) {
-    classNames.push('tile--sense-stench');
+  if (stenchDirection) {
+    const lower = stenchDirection.toLowerCase();
+    if (lower === 'all') {
+      classNames.push('tile--stench-all');
+    } else {
+      classNames.push(`tile--stench-${lower}`);
+    }
   }
 
   if (showShine) {
@@ -65,16 +70,16 @@ function Tile({
         <img src={playerSprite} alt='Player' data-entity='player' />
       ) : null}
       {revealPit ? <img src={pitSprite} alt='Pit' data-entity='pit' /> : null}
-      {revealGold ? <img src={goldSprite} alt='Gold' data-entity='gold' /> : null}
+      {revealGold ? (
+        <img src={goldSprite} alt='Gold' data-entity='gold' />
+      ) : null}
       {revealWumpus ? (
         <img src={wumpusSprite} alt='Wumpus' data-entity='wumpus' />
       ) : null}
       {showBreeze ? (
         <img src={breezeIcon} alt='Breeze' data-sense='breeze' />
       ) : null}
-      {showStench ? (
-        <img src={stenchIcon} alt='Stench' data-sense='stench' />
-      ) : null}
+      <DirectionalSense direction={stenchDirection} />
       {showShine ? (
         <img src={shineIcon} alt='Shine' data-sense='shine' />
       ) : null}
@@ -88,7 +93,7 @@ Tile.propTypes = {
   isExplored: PropTypes.bool.isRequired,
   isPlayerHere: PropTypes.bool.isRequired,
   showBreeze: PropTypes.bool.isRequired,
-  showStench: PropTypes.bool.isRequired,
+  stenchDirection: PropTypes.string,
   showShine: PropTypes.bool.isRequired,
   revealPit: PropTypes.bool.isRequired,
   revealGold: PropTypes.bool.isRequired,
