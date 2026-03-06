@@ -23,6 +23,11 @@ export default function Login() {
         await login(userId, password);
       }
     } catch (err) {
+      if (err?.code === 'auth/configuration-not-found') {
+        setError('Accounts are being set up \u2014 playing as guest');
+        setTimeout(() => skipAuth(), 200);
+        return;
+      }
       setError(err?.message ?? 'Something went wrong. Try again.');
       if (isUnrecoverableAuthError(err)) {
         setShowSkipPrompt(true);

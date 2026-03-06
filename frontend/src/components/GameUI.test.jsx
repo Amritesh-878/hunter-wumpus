@@ -11,7 +11,7 @@ function renderGameUI(overrides = {}) {
     message: '',
     status: 'Ongoing',
     turn: 0,
-    onDifficultyChange: () => {},
+    onChangeDifficulty: () => {},
     onStartGame: () => {},
     onToggleAim: () => {},
     ...overrides,
@@ -59,16 +59,20 @@ describe('GameUI', () => {
     expect(onToggleAim).toHaveBeenCalledTimes(1);
   });
 
-  it('renders DifficultySelect with all 6 options', () => {
+  it('renders Change Difficulty button', () => {
     renderGameUI();
-    expect(screen.getByText('Easy')).toBeInTheDocument();
-    expect(screen.getByText('Hard')).toBeInTheDocument();
-    expect(screen.getByText('Impossible III')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Change Difficulty' }),
+    ).toBeInTheDocument();
   });
 
-  it('disables DifficultySelect during active game', () => {
-    renderGameUI({ status: 'Ongoing' });
-    expect(screen.getByText('Easy')).toBeDisabled();
+  it('calls onChangeDifficulty when Change Difficulty is clicked', () => {
+    const onChangeDifficulty = vi.fn();
+    renderGameUI({ onChangeDifficulty });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Change Difficulty' }),
+    );
+    expect(onChangeDifficulty).toHaveBeenCalledTimes(1);
   });
 
   it('shows wumpus count HUD for Impossible tiers', () => {

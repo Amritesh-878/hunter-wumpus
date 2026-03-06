@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 
 const mockLogin = vi.fn();
 const mockSignup = vi.fn();
@@ -99,7 +105,8 @@ describe('Login component', () => {
     });
   });
 
-  it('shows Play Without Account button on unrecoverable error', async () => {
+  it('auto-skips auth on configuration-not-found error', async () => {
+    vi.useFakeTimers();
     const err = new Error(
       'Authentication service is not configured. Play without an account!',
     );
@@ -114,13 +121,22 @@ describe('Login component', () => {
     fireEvent.change(screen.getByPlaceholderText('Password'), {
       target: { value: 'pass123' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign In' }));
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: 'Play Without Account' }),
-      ).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Sign In' }));
+      await Promise.resolve();
     });
+
+    expect(
+      screen.getByText('Accounts are being set up \u2014 playing as guest'),
+    ).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+
+    expect(mockSkipAuth).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
   });
 
   it('calls skipAuth when Play Without Account is clicked', async () => {
