@@ -48,6 +48,24 @@ describe('gameService', () => {
     );
   });
 
+  it('startGame includes Authorization header when token is provided', async () => {
+    globalThis.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ game_id: 'id' }),
+    });
+
+    await startGame(10, 'my-jwt');
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer my-jwt',
+        }),
+      }),
+    );
+  });
+
   it('movePlayer sends expected payload and returns state', async () => {
     const payload = {
       game_id: 'test-id',
@@ -79,6 +97,24 @@ describe('gameService', () => {
       }),
     );
     expect(result).toEqual(payload);
+  });
+
+  it('movePlayer includes Authorization header when token is provided', async () => {
+    globalThis.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ game_id: 'id' }),
+    });
+
+    await movePlayer('id', 'NORTH', 'my-jwt');
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer my-jwt',
+        }),
+      }),
+    );
   });
 
   it('startGame propagates network errors', async () => {

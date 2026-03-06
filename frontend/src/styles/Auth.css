@@ -1,0 +1,77 @@
+.login-panel {
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: #0f0e18;
+  border: 1px solid #2a2840;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.65);
+}
+
+.login-panel__title {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  text-transform: uppercase;
+  letter-spacing: 0.16rem;
+  color: #e2a04a;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.login-panel__input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: #1e1c28;
+  color: #ddd6c3;
+  border: 1px solid #2a2840;
+  border-radius: 6px;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.login-panel__input:focus {
+  border-color: #e2a04a;
+}
+
+.login-panel__btn {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  font-family: 'Cinzel', serif;
+  background: linear-gradient(180deg, #f0be73, #c98736);
+  color: #2e2010;
+  border: 1px solid #7a5424;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.login-panel__btn:hover:not(:disabled) {
+  box-shadow: 0 0 10px rgba(226, 160, 74, 0.35);
+}
+
+.login-panel__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-panel__toggle {
+  background: none;
+  border: none;
+  color: #e2a04a;
+  cursor: pointer;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.login-panel__error {
+  margin: 0;
+  color: #efb0b0;
+  font-size: 0.85rem;
+  text-align: center;
+}

@@ -1,18 +1,21 @@
 import { useState } from 'react';
 
 import { startGame as startGameRequest } from './api/gameService';
+import { useAuth } from './auth/AuthContext';
 import GameOverModal from './components/GameOverModal';
 import GameUI from './components/GameUI';
 import Grid from './components/Grid';
 import LoadingOverlay from './components/LoadingOverlay';
+import Login from './components/Login';
 import TutorialMode from './components/Tutorial/TutorialMode';
 import { useControls } from './hooks/useControls';
-import { GameProvider, useGame } from './store/GameContext';
+import { useGame } from './store/GameContext';
 import './styles/App.css';
 
 function GameShell() {
   const { state, dispatch } = useGame();
   const { isAiming, toggleAim } = useControls();
+  const { user, token, loading: authLoading } = useAuth();
   const [appMode, setAppMode] = useState('menu');
 
   const runStartGame = async (resetBeforeRequest) => {
@@ -20,7 +23,7 @@ function GameShell() {
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      const gameState = await startGameRequest(state.gridSize);
+      const gameState = await startGameRequest(state.gridSize, token);
       if (!resetBeforeRequest) dispatch({ type: 'RESET_STATE' });
       dispatch({ type: 'UPDATE_STATE', payload: gameState });
     } catch (error) {
@@ -28,6 +31,24 @@ function GameShell() {
       dispatch({ type: 'SET_ERROR', payload: message });
     }
   };
+
+  if (authLoading) {
+    return <LoadingOverlay />;
+  }
+
+  if (!user) {
+    return (
+      <main className='app'>
+        <header className='app__titlebar'>
+          <h1>HUNT THE WUMPUS</h1>
+          <div className='app__title-divider' aria-hidden='true' />
+        </header>
+        <section className='app__content app__content--menu'>
+          <Login />
+        </section>
+      </main>
+    );
+  }
 
   const startRealGame = async () => {
     setAppMode('playing');
@@ -123,9 +144,5 @@ function GameShell() {
 }
 
 export default function App() {
-  return (
-    <GameProvider>
-      <GameShell />
-    </GameProvider>
-  );
+  return <GameShell />;
 }
