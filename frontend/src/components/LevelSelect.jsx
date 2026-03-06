@@ -30,7 +30,7 @@ const DIFFICULTIES = [
 
 export { DIFFICULTIES };
 
-export default function LevelSelect({ value, onChange, onConfirm }) {
+export default function LevelSelect({ value, onChange, onConfirm, onBack }) {
   return (
     <section className='level-select' aria-label='Select difficulty'>
       <h2 className='level-select__title'>Select Difficulty</h2>
@@ -58,6 +58,11 @@ export default function LevelSelect({ value, onChange, onConfirm }) {
       >
         Confirm
       </button>
+      {onBack ? (
+        <button type='button' className='level-select__back' onClick={onBack}>
+          ← Back
+        </button>
+      ) : null}
     </section>
   );
 }
@@ -66,4 +71,5 @@ LevelSelect.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
+  onBack: PropTypes.func,
 };

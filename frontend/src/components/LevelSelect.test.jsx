@@ -14,7 +14,12 @@ describe('LevelSelect', () => {
 
   it('renders all 6 difficulty cards', () => {
     render(
-      <LevelSelect value='medium' onChange={() => {}} onConfirm={() => {}} />,
+      <LevelSelect
+        value='medium'
+        onChange={() => {}}
+        onConfirm={() => {}}
+        onBack={() => {}}
+      />,
     );
 
     for (const label of allLabels) {
@@ -24,21 +29,29 @@ describe('LevelSelect', () => {
 
   it('renders descriptions for each difficulty', () => {
     render(
-      <LevelSelect value='medium' onChange={() => {}} onConfirm={() => {}} />,
+      <LevelSelect
+        value='medium'
+        onChange={() => {}}
+        onConfirm={() => {}}
+        onBack={() => {}}
+      />,
     );
 
     expect(screen.getByText('Wumpus moves every 2 turns')).toBeInTheDocument();
     expect(screen.getByText('Standard 1:1 pacing')).toBeInTheDocument();
     expect(screen.getByText('Smarter Wumpus AI')).toBeInTheDocument();
-    expect(
-      screen.getByText('3-4 Wumpuses, maximum chaos'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('3-4 Wumpuses, maximum chaos')).toBeInTheDocument();
   });
 
   it('calls onChange with correct difficulty on card click', () => {
     const onChange = vi.fn();
     render(
-      <LevelSelect value='medium' onChange={onChange} onConfirm={() => {}} />,
+      <LevelSelect
+        value='medium'
+        onChange={onChange}
+        onConfirm={() => {}}
+        onBack={() => {}}
+      />,
     );
 
     fireEvent.click(screen.getByText('Hard'));
@@ -50,7 +63,12 @@ describe('LevelSelect', () => {
 
   it('marks selected card with aria-pressed', () => {
     render(
-      <LevelSelect value='hard' onChange={() => {}} onConfirm={() => {}} />,
+      <LevelSelect
+        value='hard'
+        onChange={() => {}}
+        onConfirm={() => {}}
+        onBack={() => {}}
+      />,
     );
 
     expect(screen.getByText('Hard').closest('button')).toHaveAttribute(
@@ -66,7 +84,12 @@ describe('LevelSelect', () => {
   it('calls onConfirm when Confirm button is clicked', () => {
     const onConfirm = vi.fn();
     render(
-      <LevelSelect value='medium' onChange={() => {}} onConfirm={onConfirm} />,
+      <LevelSelect
+        value='medium'
+        onChange={() => {}}
+        onConfirm={onConfirm}
+        onBack={() => {}}
+      />,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -75,7 +98,12 @@ describe('LevelSelect', () => {
 
   it('shows Default badge on medium difficulty', () => {
     render(
-      <LevelSelect value='medium' onChange={() => {}} onConfirm={() => {}} />,
+      <LevelSelect
+        value='medium'
+        onChange={() => {}}
+        onConfirm={() => {}}
+        onBack={() => {}}
+      />,
     );
 
     expect(screen.getByText('Default')).toBeInTheDocument();
@@ -83,9 +111,39 @@ describe('LevelSelect', () => {
 
   it('renders the title', () => {
     render(
-      <LevelSelect value='medium' onChange={() => {}} onConfirm={() => {}} />,
+      <LevelSelect
+        value='medium'
+        onChange={() => {}}
+        onConfirm={() => {}}
+        onBack={() => {}}
+      />,
     );
 
     expect(screen.getByText('Select Difficulty')).toBeInTheDocument();
+  });
+
+  it('calls onBack when back button is clicked', () => {
+    const onBack = vi.fn();
+    render(
+      <LevelSelect
+        value='medium'
+        onChange={() => {}}
+        onConfirm={() => {}}
+        onBack={onBack}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+    expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not render back button when onBack is not provided', () => {
+    render(
+      <LevelSelect value='medium' onChange={() => {}} onConfirm={() => {}} />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: /back/i }),
+    ).not.toBeInTheDocument();
   });
 });

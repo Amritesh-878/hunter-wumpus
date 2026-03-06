@@ -55,7 +55,7 @@ def enqueue_stats(
 
 
 def init_sheets_client() -> Any:
-    """Authenticate with Google Sheets via service account. Returns worksheet or None."""
+    """Authenticate with Google Sheets via OAuth Desktop App. Returns worksheet or None."""
     global _sheets_client, _sheets_inited  # noqa: PLW0603
     if _sheets_inited:
         return _sheets_client
@@ -66,6 +66,7 @@ def init_sheets_client() -> Any:
         str(Path(__file__).resolve().parents[2] / "client_secret.json"),
     )
     sheet_id = os.environ.get("GOOGLE_SHEETS_ID")
+    token_path = Path(__file__).resolve().parents[2] / "token.json"
 
     if not sheet_id or not Path(secret_path).exists():
         logger.info("Sheets credentials missing — telemetry will stay local-only.")
@@ -73,13 +74,21 @@ def init_sheets_client() -> Any:
 
     try:
         import gspread  # type: ignore[import-untyped]
-        from google.oauth2.service_account import Credentials  # type: ignore[import-untyped]
+        from google.auth.transport.requests import Request  # type: ignore[import-untyped]
+        from google.oauth2.credentials import Credentials  # type: ignore[import-untyped]
+        from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore[import-untyped]
 
-        scopes = [
-            "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive",
-        ]
-        creds = Credentials.from_service_account_file(secret_path, scopes=scopes)
+        scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+        creds: Any = None
+        if token_path.exists():
+            creds = Credentials.from_authorized_user_file(str(token_path), scopes)
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(secret_path, scopes)
+                creds = flow.run_local_server(port=0)
+            token_path.write_text(creds.to_json(), encoding="utf-8")
         gc = gspread.authorize(creds)
         _sheets_client = gc.open_by_key(sheet_id).sheet1
         logger.info("Google Sheets client initialized for sheet %s", sheet_id)

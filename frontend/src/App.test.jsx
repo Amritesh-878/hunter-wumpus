@@ -46,6 +46,10 @@ function renderApp() {
   );
 }
 
+function goToLevelSelect() {
+  fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+}
+
 function confirmLevelSelect() {
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 }
@@ -59,15 +63,27 @@ describe('App game loop', () => {
     vi.useRealTimers();
   });
 
-  it('shows level select screen before menu', () => {
+  it('shows menu screen first with Start Game and Tutorial', () => {
     renderApp();
+    expect(
+      screen.getByRole('button', { name: 'Start Game' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Tutorial' }),
+    ).toBeInTheDocument();
+  });
+
+  it('navigates from menu to level select on Start Game', () => {
+    renderApp();
+    goToLevelSelect();
     expect(screen.getByText('Select Difficulty')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
   });
 
-  it('navigates from level select to menu on confirm', () => {
+  it('navigates back from level select to menu', () => {
     renderApp();
-    confirmLevelSelect();
+    goToLevelSelect();
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
     expect(
       screen.getByRole('button', { name: 'Start Game' }),
     ).toBeInTheDocument();
@@ -82,9 +98,8 @@ describe('App game loop', () => {
     mockStartGame.mockReturnValueOnce(pendingStart);
 
     renderApp();
+    goToLevelSelect();
     confirmLevelSelect();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
     expect(mockStartGame).toHaveBeenCalledWith(10, 'mock-token', 'medium');
     expect(screen.getByText('The Wumpus is thinking...')).toBeInTheDocument();
@@ -127,8 +142,8 @@ describe('App game loop', () => {
     });
 
     renderApp();
+    goToLevelSelect();
     confirmLevelSelect();
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
     await act(async () => {
       await Promise.resolve();
@@ -171,9 +186,8 @@ describe('App game loop', () => {
       });
 
     renderApp();
+    goToLevelSelect();
     confirmLevelSelect();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
 
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -200,7 +214,6 @@ describe('App game loop', () => {
 
   it('opens tutorial mode from menu', () => {
     renderApp();
-    confirmLevelSelect();
 
     fireEvent.click(screen.getByRole('button', { name: 'Tutorial' }));
 

@@ -423,6 +423,7 @@ $RECYCLE.BIN/
 backend/models/
 
 client_secret.json
+token.json
 backend/firebase_service_account.json
 backend/telemetry_queue.jsonl
 *.jsonl

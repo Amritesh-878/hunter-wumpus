@@ -18,7 +18,7 @@ function GameShell() {
   const { state, dispatch } = useGame();
   const { isAiming, toggleAim } = useControls();
   const { user, token, loading: authLoading, authSkipped } = useAuth();
-  const [appMode, setAppMode] = useState('level-select');
+  const [appMode, setAppMode] = useState('menu');
   const [difficulty, setDifficulty] = useState('medium');
 
   const runStartGame = async (resetBeforeRequest) => {
@@ -79,14 +79,6 @@ function GameShell() {
       <section
         className={`app__content${appMode === 'menu' || appMode === 'level-select' ? ' app__content--menu' : ''}`}
       >
-        {appMode === 'level-select' ? (
-          <LevelSelect
-            value={difficulty}
-            onChange={setDifficulty}
-            onConfirm={() => setAppMode('menu')}
-          />
-        ) : null}
-
         {appMode === 'menu' ? (
           <section className='menu-panel' aria-label='Main menu'>
             <p className='menu-panel__subtitle'>Choose your path</p>
@@ -94,7 +86,7 @@ function GameShell() {
               type='button'
               className='btn-start'
               onClick={() => {
-                void startRealGame();
+                setAppMode('level-select');
               }}
               disabled={state.isLoading}
             >
@@ -111,6 +103,17 @@ function GameShell() {
               Tutorial
             </button>
           </section>
+        ) : null}
+
+        {appMode === 'level-select' ? (
+          <LevelSelect
+            value={difficulty}
+            onChange={setDifficulty}
+            onConfirm={() => {
+              void startRealGame();
+            }}
+            onBack={() => setAppMode('menu')}
+          />
         ) : null}
 
         {appMode === 'tutorial' ? (

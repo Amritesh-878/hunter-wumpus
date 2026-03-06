@@ -107,6 +107,18 @@
     0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
+.level-select__back {
+  background: none;
+  border: none;
+  color: #8a8aa0;
+  cursor: pointer;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 0.8rem;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 @media (max-width: 500px) {
   .level-select__grid {
     grid-template-columns: 1fr;
