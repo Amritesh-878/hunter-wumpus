@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from typing import Protocol
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -10,15 +9,7 @@ from api.auth import get_optional_user, update_user_profile
 from api.schemas import ActionType, GameStateResponse, MoveRequest, SensesPayload, StartRequest
 from engine.entities import Direction, Position
 from engine.game_state import GameEngine
-from rl.agent import RandomWumpusAgent, WumpusAgent
-
-
-class WumpusPolicy(Protocol):
-    def build_observation(self, game_state: dict[str, object]) -> object:
-        ...
-
-    def get_wumpus_action(self, obs: object) -> Direction:
-        ...
+from rl import model_registry
 
 
 @dataclass
@@ -31,11 +22,16 @@ class SessionState:
     message: str = "The hunt begins. Find the gold. Survive."
     user_id: str | None = None
     pacing_interval: int = 1
+    difficulty: str = "medium"
+
+
+PACING_BY_DIFFICULTY: dict[str, int] = {
+    "easy": 2,
+}
 
 
 router = APIRouter()
 _sessions: dict[str, SessionState] = {}
-_agent: WumpusPolicy | None = None
 
 
 def _to_pair(position: Position) -> tuple[int, int]:
@@ -76,19 +72,6 @@ def _sense_message(senses: dict[str, bool | str | None]) -> str:
     if senses["shine"]:
         return "A faint glimmer catches your eye."
     return ""
-
-
-def _get_agent() -> WumpusPolicy:
-    global _agent
-    # Retry loading the real model if currently using the fallback random agent.
-    # This allows the trained model to be picked up after training completes
-    # without requiring a server restart.
-    if _agent is None or isinstance(_agent, RandomWumpusAgent):
-        try:
-            _agent = WumpusAgent()
-        except FileNotFoundError:
-            _agent = RandomWumpusAgent()
-    return _agent
 
 
 def _action_to_direction(action: ActionType) -> tuple[Direction, bool]:
@@ -150,6 +133,7 @@ def _build_response(
         game_id=game_id,
         status=session.engine.status,
         grid_size=session.engine.size,
+        difficulty=session.difficulty,
         turn=session.turn,
         player_pos=_to_pair(session.engine.player_pos),
         arrows_remaining=session.arrows_remaining,
@@ -180,7 +164,13 @@ async def start_game(
     pit_count = max(2, min(8, int(request.grid_size * 0.2)))
     engine = GameEngine(size=request.grid_size, num_pits=pit_count)
     game_id = str(uuid.uuid4())
-    session = SessionState(engine=engine, user_id=user_id)
+    pacing = PACING_BY_DIFFICULTY.get(request.difficulty, 1)
+    session = SessionState(
+        engine=engine,
+        user_id=user_id,
+        difficulty=request.difficulty,
+        pacing_interval=pacing,
+    )
     _sessions[game_id] = session
     return _build_response(game_id, session)
 
@@ -228,7 +218,7 @@ async def move(
 
     should_move_wumpus = session.turn % session.pacing_interval == 0
     if should_move_wumpus:
-        agent = _get_agent()
+        agent = model_registry.load_model(session.difficulty)
         obs = agent.build_observation(_observation_state(session.engine))
         wumpus_action = agent.get_wumpus_action(obs)
         session.engine.move_wumpus(wumpus_action)
