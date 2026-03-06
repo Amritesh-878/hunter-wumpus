@@ -22,14 +22,14 @@ async function parseResponse(response) {
   throw new Error(detail);
 }
 
-export async function startGame(gridSize = 10, token = null) {
+export async function startGame(gridSize = 10, token = null, difficulty = 'medium') {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   const response = await fetch(`${BASE_URL}/game/start`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ grid_size: gridSize }),
+    body: JSON.stringify({ grid_size: gridSize, difficulty }),
   });
 
   return parseResponse(response);
