@@ -67,9 +67,7 @@ describe('Login component', () => {
     mockSignup.mockResolvedValueOnce(undefined);
     render(<Login />);
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /Sign Up/i }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /Sign Up/i }));
     fireEvent.change(screen.getByPlaceholderText('Player ID'), {
       target: { value: 'newplayer' },
     });
@@ -187,13 +185,15 @@ describe('Login component', () => {
   it('toggles between Sign In and Sign Up modes', () => {
     render(<Login />);
 
-    expect(screen.getByRole('heading', { name: 'Sign In' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Sign In' }),
+    ).toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /Sign Up/i }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /Sign Up/i }));
 
-    expect(screen.getByRole('heading', { name: 'Create Account' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Create Account' }),
+    ).toBeInTheDocument();
   });
 
   it('clears error when toggling sign-in/sign-up mode', async () => {
@@ -217,9 +217,7 @@ describe('Login component', () => {
       ).toBeInTheDocument();
     });
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /Sign Up/i }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /Sign Up/i }));
 
     expect(
       screen.queryByText('Incorrect password. Try again.'),

@@ -68,7 +68,9 @@ describe('App game loop', () => {
   it('navigates from level select to menu on confirm', () => {
     renderApp();
     confirmLevelSelect();
-    expect(screen.getByRole('button', { name: 'Start Game' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Start Game' }),
+    ).toBeInTheDocument();
   });
 
   it('starts a game and clears loading overlay on success', async () => {

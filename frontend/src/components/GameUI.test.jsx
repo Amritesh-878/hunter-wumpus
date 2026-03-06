@@ -69,9 +69,7 @@ describe('GameUI', () => {
   it('calls onChangeDifficulty when Change Difficulty is clicked', () => {
     const onChangeDifficulty = vi.fn();
     renderGameUI({ onChangeDifficulty });
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Change Difficulty' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Change Difficulty' }));
     expect(onChangeDifficulty).toHaveBeenCalledTimes(1);
   });
 
